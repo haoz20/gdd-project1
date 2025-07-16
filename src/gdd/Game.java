@@ -2,9 +2,10 @@ package gdd;
 
 import gdd.scene.Scene1;
 import gdd.scene.TitleScene;
+
 import javax.swing.JFrame;
 
-public class Game extends JFrame  {
+public class Game extends JFrame {
 
     TitleScene titleScene;
     Scene1 scene1;
@@ -13,8 +14,8 @@ public class Game extends JFrame  {
         titleScene = new TitleScene(this);
         scene1 = new Scene1(this);
         initUI();
-        // loadTitle();
-        loadScene2();
+        loadTitle();
+//        loadScene2();
     }
 
     private void initUI() {

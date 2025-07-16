@@ -93,6 +93,24 @@ public class TitleScene extends JPanel {
 
         g.drawImage(image, 0, -80, d.width, d.height, this);
 
+        g.setColor(Color.white);
+        g.setFont(g.getFont().deriveFont(16f));
+
+        // Draw each member name on separate lines
+        String[] members = {
+                "Swan Htet Aung: 6611977",
+                "Thiri Htet: 6611714",
+                "Min Thet Naung: 6530142"
+        };
+
+        int lineHeight = g.getFontMetrics().getHeight();
+        for (int i = 0; i < members.length; i++) {
+            g.drawString(members[i], 10, 20 + (i * lineHeight));
+        }
+
+        g.setFont(g.getFont().deriveFont(12f));
+
+
         if (frame % 60 < 30) {
             g.setColor(Color.red);
         } else {
