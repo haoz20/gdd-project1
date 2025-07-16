@@ -25,6 +25,10 @@ public class Explosion extends Sprite {
         setImage(scaledImage);
     }
 
+    public void act() {
+        // The explosion does not move, so no action needed here
+    }
+
     public void act(int direction) {
 
         // this.x += direction;

@@ -28,6 +28,10 @@ public class Enemy extends Sprite {
         setImage(scaledImage);
     }
 
+    public void act() {
+        this.y++;
+    }
+
     public void act(int direction) {
 
         this.x += direction;
