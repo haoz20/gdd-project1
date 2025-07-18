@@ -1,5 +1,7 @@
 package gdd.sprite;
 
+import gdd.Global;
+
 import static gdd.Global.*;
 import javax.swing.ImageIcon;
 
@@ -9,7 +11,7 @@ public class Alien1 extends Enemy {
 
     public Alien1(int x, int y) {
         super(x, y);
-        // initEnemy(x, y);
+        initEnemy(x, y);
     }
 
     private void initEnemy(int x, int y) {
@@ -49,6 +51,8 @@ public class Alien1 extends Enemy {
         private void initBomb(int x, int y) {
 
             setDestroyed(true);
+//            int alienWidth = new ImageIcon(IMG_ENEMY).getIconWidth() * SCALE_FACTOR;
+//            int bombWidth = new ImageIcon("src/images/bomb.png").getIconWidth();
 
             this.x = x;
             this.y = y;
@@ -70,7 +74,7 @@ public class Alien1 extends Enemy {
 
         @Override
         public void act() {
-
+            this.y += 2; // Bomb falls down
         }
     }
 }
