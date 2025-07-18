@@ -1,5 +1,6 @@
 frame,type,x,y
 50,PowerUp-SpeedUp,100,0
+100, PowerUp-MultiShot,200,0
 200,Alien1,200,0
 300,Alien1,300,0
 400,Alien1,400,0

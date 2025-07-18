@@ -11,6 +11,7 @@ public class Player extends Sprite {
     private static final int START_Y = 540;
     private int width;
     private int currentSpeed = 2;
+    private int multiShotLevel = 1;
 
     private Rectangle bounds = new Rectangle(175,135,17,32);
 

@@ -113,7 +113,7 @@ public class Scene1 extends JPanel {
     private void loadSpawnDetails() {
         // TODO load this from a file
 
-        try (BufferedReader br = new BufferedReader(new FileReader("src/spawn_enemy.csv"))) {
+        try (BufferedReader br = new BufferedReader(new FileReader("src/spawn_enemy_scene1.csv"))) {
             String line;
             boolean firstLine = true;
             while ((line = br.readLine()) != null) {
