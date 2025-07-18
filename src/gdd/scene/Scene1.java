@@ -2,8 +2,11 @@ package gdd.scene;
 
 import gdd.AudioPlayer;
 import gdd.Game;
+
 import static gdd.Global.*;
+
 import gdd.SpawnDetails;
+import gdd.powerup.MultiShot;
 import gdd.powerup.PowerUp;
 import gdd.powerup.SpeedUp;
 import gdd.sprite.Alien1;
@@ -11,6 +14,7 @@ import gdd.sprite.Enemy;
 import gdd.sprite.Explosion;
 import gdd.sprite.Player;
 import gdd.sprite.Shot;
+
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -62,30 +66,30 @@ public class Scene1 extends JPanel {
     // TODO load this map from a file
     private int mapOffset = 0;
     private final int[][] MAP = {
-            { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-            { 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-            { 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-            { 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0 },
-            { 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0 },
-            { 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0 },
-            { 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0 },
-            { 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0 },
-            { 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0 },
-            { 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0 },
-            { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0 },
-            { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 },
-            { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-            { 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-            { 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-            { 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0 },
-            { 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0 },
-            { 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0 },
-            { 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0 },
-            { 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0 },
-            { 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0 },
-            { 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0 },
-            { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0 },
-            { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 }
+            {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+            {0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+            {0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+            {0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0},
+            {0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0},
+            {0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0},
+            {0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0},
+            {0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0},
+            {0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0},
+            {0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0},
+            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0},
+            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+            {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+            {0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+            {0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+            {0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0},
+            {0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0},
+            {0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0},
+            {0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0},
+            {0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0},
+            {0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0},
+            {0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0},
+            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0},
+            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}
     };
 
     private HashMap<Integer, SpawnDetails> spawnMap = new HashMap<>();
@@ -355,7 +359,7 @@ public class Scene1 extends JPanel {
         g.drawString("FRAME: " + frame, 10, 10);
         g.drawString("Score: " + deaths, 10, 25);
         g.drawString("Speed: " + player.getSpeed(), 10, 40);
-        g.drawString("Shots Upgrade: ", 10, 55);
+        g.drawString("Shots Upgrade: " + player.getMultiShotLevel(), 10, 55);
 
         g.setColor(Color.green);
 
@@ -420,6 +424,10 @@ public class Scene1 extends JPanel {
                     // Handle speed up item spawn
                     PowerUp speedUp = new SpeedUp(sd.x, sd.y);
                     powerups.add(speedUp);
+                    break;
+                case "PowerUp-MultiShot":
+                    PowerUp multiShot = new MultiShot(sd.x, sd.y);
+                    powerups.add(multiShot);
                     break;
                 default:
                     System.out.println("Unknown enemy type: " + sd.type);
@@ -526,34 +534,34 @@ public class Scene1 extends JPanel {
         // Bomb is with enemy, so it loops over enemies
         /*
          * for (Enemy enemy : enemies) {
-         * 
+         *
          * int chance = randomizer.nextInt(15);
          * Enemy.Bomb bomb = enemy.getBomb();
-         * 
+         *
          * if (chance == CHANCE && enemy.isVisible() && bomb.isDestroyed()) {
-         * 
+         *
          * bomb.setDestroyed(false);
          * bomb.setX(enemy.getX());
          * bomb.setY(enemy.getY());
          * }
-         * 
+         *
          * int bombX = bomb.getX();
          * int bombY = bomb.getY();
          * int playerX = player.getX();
          * int playerY = player.getY();
-         * 
+         *
          * if (player.isVisible() && !bomb.isDestroyed()
          * && bombX >= (playerX)
          * && bombX <= (playerX + PLAYER_WIDTH)
          * && bombY >= (playerY)
          * && bombY <= (playerY + PLAYER_HEIGHT)) {
-         * 
+         *
          * var ii = new ImageIcon(IMG_EXPLOSION);
          * player.setImage(ii.getImage());
          * player.setDying(true);
          * bomb.setDestroyed(true);
          * }
-         * 
+         *
          * if (!bomb.isDestroyed()) {
          * bomb.setY(bomb.getY() + 1);
          * if (bomb.getY() >= GROUND - BOMB_HEIGHT) {
@@ -598,10 +606,28 @@ public class Scene1 extends JPanel {
 
             if (key == KeyEvent.VK_SPACE && inGame) {
                 System.out.println("Shots: " + shots.size());
-                if (shots.size() < 4) {
+                if (shots.size() < player.getMultiShotLevel()*4) {
                     // Create a new shot and add it to the list
-                    Shot shot = new Shot(x, y);
-                    shots.add(shot);
+
+//                    Shot shot = new Shot(x, y);
+//                    shots.add(shot);
+
+                    if (player.getMultiShotLevel() == 1) {
+                        shots.add(new Shot(x, y));
+                    } else if (player.getMultiShotLevel() == 2) {
+                        shots.add(new Shot(x - 10, y));
+                        shots.add(new Shot(x + 10, y));
+                    } else if (player.getMultiShotLevel() == 3) {
+                        shots.add(new Shot(x - 20, y));
+                        shots.add(new Shot(x, y));
+                        shots.add(new Shot(x + 20, y));
+                    } else if (player.getMultiShotLevel() == 4) {
+                        shots.add(new Shot(x - 30, y));
+                        shots.add(new Shot(x - 10, y));
+                        shots.add(new Shot(x + 10, y));
+                        shots.add(new Shot(x + 30, y));
+                    }
+                    
                 }
             }
 

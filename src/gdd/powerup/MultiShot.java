@@ -10,20 +10,24 @@ public class MultiShot extends PowerUp {
 
     public MultiShot(int x, int y) {
         super(x, y);
+        int width = 50;
+        int height = 50;
+        ImageIcon ii = new ImageIcon(IMG_POWERUP_MULTISHOT);
+        var scaledImage = ii.getImage().getScaledInstance(width,
+                height,
+                java.awt.Image.SCALE_SMOOTH);
+        setImage(scaledImage);
     }
 
     @Override
     public void upgrade(Player player) {
-        ImageIcon ii = new ImageIcon(IMG_POWERUP_MULTISHOT);
-        var scaledImage = ii.getImage().getScaledInstance(ii.getIconWidth() ,
-                ii.getIconHeight() ,
-                java.awt.Image.SCALE_SMOOTH);
-        setImage(scaledImage);
+        player.setMultiShotLevel(player.getMultiShotLevel() + 1);
+        this.die();
     }
 
 
     @Override
     public void act() {
-
+        this.y += 2;
     }
 }
