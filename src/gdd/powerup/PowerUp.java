@@ -16,4 +16,8 @@ abstract public class PowerUp extends Sprite {
     }
 
     abstract public void upgrade(Player player);
+    
+    protected static int speedUpCount = 0;
+    protected static int multiShotCount = 0;
+    protected static final int MAX_ACTIVATIONS = 3;
 }

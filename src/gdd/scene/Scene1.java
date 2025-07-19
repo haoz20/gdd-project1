@@ -11,6 +11,7 @@ import gdd.powerup.PowerUp;
 import gdd.powerup.SpeedUp;
 import gdd.sprite.Alien1;
 import gdd.sprite.Alien1.*;
+import gdd.sprite.Alien2;
 import gdd.sprite.Enemy;
 import gdd.sprite.Explosion;
 import gdd.sprite.Player;
@@ -168,7 +169,7 @@ public class Scene1 extends JPanel {
         timer.start();
 
         gameInit();
-        initAudio();
+//        initAudio();
     }
 
     public void stop() {
@@ -424,8 +425,8 @@ public class Scene1 extends JPanel {
                     break;
                 // Add more cases for different enemy types if needed
                 case "Alien2":
-                    // Enemy enemy2 = new Alien2(sd.x, sd.y);
-                    // enemies.add(enemy2);
+                     Enemy enemy2 = new Alien2(sd.x, sd.y);
+                     enemies.add(enemy2);
                     break;
                 case "PowerUp-SpeedUp":
                     // Handle speed up item spawn

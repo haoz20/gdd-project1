@@ -8,6 +8,7 @@ import static gdd.Global.*;
 
 public class MultiShot extends PowerUp {
 
+
     public MultiShot(int x, int y) {
         super(x, y);
         int width = 50;
@@ -21,8 +22,11 @@ public class MultiShot extends PowerUp {
 
     @Override
     public void upgrade(Player player) {
-        player.setMultiShotLevel(player.getMultiShotLevel() + 1);
-        this.die();
+        if (multiShotCount < MAX_ACTIVATIONS) {
+            player.setMultiShotLevel(player.getMultiShotLevel() + 1);
+            multiShotCount++;
+            this.die();
+        }
     }
 
 
