@@ -12,6 +12,10 @@ public class Player extends Sprite {
     private int width;
     private int currentSpeed = 2;
 
+
+
+    private int multiShotLevel = 1;
+
     private Rectangle bounds = new Rectangle(175,135,17,32);
 
     public Player() {
@@ -41,6 +45,14 @@ public class Player extends Sprite {
         }
         this.currentSpeed = speed;
         return currentSpeed;
+    }
+
+    public int getMultiShotLevel() {
+        return multiShotLevel;
+    }
+
+    public void setMultiShotLevel(int multiShotLevel) {
+        this.multiShotLevel = multiShotLevel;
     }
 
     public void act() {

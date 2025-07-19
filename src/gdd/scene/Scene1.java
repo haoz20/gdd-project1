@@ -2,15 +2,21 @@ package gdd.scene;
 
 import gdd.AudioPlayer;
 import gdd.Game;
+
 import static gdd.Global.*;
+
 import gdd.SpawnDetails;
+import gdd.powerup.MultiShot;
 import gdd.powerup.PowerUp;
 import gdd.powerup.SpeedUp;
 import gdd.sprite.Alien1;
+import gdd.sprite.Alien1.*;
+import gdd.sprite.Alien2;
 import gdd.sprite.Enemy;
 import gdd.sprite.Explosion;
 import gdd.sprite.Player;
 import gdd.sprite.Shot;
+
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -20,6 +26,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -35,6 +44,7 @@ public class Scene1 extends JPanel {
     private List<Enemy> enemies;
     private List<Explosion> explosions;
     private List<Shot> shots;
+    private List<Bomb> bombs = new ArrayList<>();
     private Player player;
     // private Shot shot;
 
@@ -59,30 +69,30 @@ public class Scene1 extends JPanel {
     // TODO load this map from a file
     private int mapOffset = 0;
     private final int[][] MAP = {
-        {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-        {0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-        {0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-        {0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0},
-        {0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0},
-        {0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0},
-        {0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0},
-        {0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0},
-        {0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0},
-        {0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0},
-        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0},
-        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-        {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-        {0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-        {0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-        {0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0},
-        {0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0},
-        {0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0},
-        {0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0},
-        {0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0},
-        {0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0},
-        {0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0},
-        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0},
-        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}
+            { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+            { 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+            { 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+            { 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0 },
+            { 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0 },
+            { 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0 },
+            { 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0 },
+            { 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0 },
+            { 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0 },
+            { 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0 },
+            { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0 },
+            { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 },
+            { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+            { 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+            { 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+            { 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0 },
+            { 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0 },
+            { 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0 },
+            { 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0 },
+            { 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0 },
+            { 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0 },
+            { 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0 },
+            { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0 },
+            { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 }
     };
 
     private HashMap<Integer, SpawnDetails> spawnMap = new HashMap<>();
@@ -109,19 +119,40 @@ public class Scene1 extends JPanel {
 
     private void loadSpawnDetails() {
         // TODO load this from a file
-        spawnMap.put(50, new SpawnDetails("PowerUp-SpeedUp", 100, 0));
-        spawnMap.put(200, new SpawnDetails("Alien1", 200, 0));
-        spawnMap.put(300, new SpawnDetails("Alien1", 300, 0));
 
-        spawnMap.put(400, new SpawnDetails("Alien1", 400, 0));
-        spawnMap.put(401, new SpawnDetails("Alien1", 450, 0));
-        spawnMap.put(402, new SpawnDetails("Alien1", 500, 0));
-        spawnMap.put(403, new SpawnDetails("Alien1", 550, 0));
+        try (BufferedReader br = new BufferedReader(new FileReader("src/spawn_enemy_scene1.csv"))) {
+            String line;
+            boolean firstLine = true;
+            while ((line = br.readLine()) != null) {
+                if (firstLine) {
+                    firstLine = false; // Skip header line
+                    continue;
+                }
+                String[] values = line.split(",");
+                int frame = Integer.parseInt(values[0]);
+                String type = values[1];
+                int x = Integer.parseInt(values[2]);
+                int y = Integer.parseInt(values[3]);
+                spawnMap.put(frame, new SpawnDetails(type, x, y));
+            }
 
-        spawnMap.put(500, new SpawnDetails("Alien1", 100, 0));
-        spawnMap.put(501, new SpawnDetails("Alien1", 150, 0));
-        spawnMap.put(502, new SpawnDetails("Alien1", 200, 0));
-        spawnMap.put(503, new SpawnDetails("Alien1", 350, 0));
+        } catch (Exception e) {
+            System.err.println("Error loading spawn details: " + e.getMessage());
+        }
+
+        // spawnMap.put(50, new SpawnDetails("PowerUp-SpeedUp", 100, 0));
+        // spawnMap.put(200, new SpawnDetails("Alien1", 200, 0));
+        // spawnMap.put(300, new SpawnDetails("Alien1", 300, 0));
+
+        // spawnMap.put(400, new SpawnDetails("Alien1", 400, 0));
+        // spawnMap.put(401, new SpawnDetails("Alien1", 450, 0));
+        // spawnMap.put(402, new SpawnDetails("Alien1", 500, 0));
+        // spawnMap.put(403, new SpawnDetails("Alien1", 550, 0));
+
+        // spawnMap.put(500, new SpawnDetails("Alien1", 100, 0));
+        // spawnMap.put(501, new SpawnDetails("Alien1", 150, 0));
+        // spawnMap.put(502, new SpawnDetails("Alien1", 200, 0));
+        // spawnMap.put(503, new SpawnDetails("Alien1", 350, 0));
     }
 
     private void initBoard() {
@@ -138,7 +169,7 @@ public class Scene1 extends JPanel {
         timer.start();
 
         gameInit();
-        initAudio();
+//        initAudio();
     }
 
     public void stop() {
@@ -187,7 +218,7 @@ public class Scene1 extends JPanel {
 
             // Calculate Y position for this row
             // int y = (screenRow * BLOCKHEIGHT) - scrollOffset;
-            int y = BOARD_HEIGHT - ( (screenRow * BLOCKHEIGHT) - scrollOffset );
+            int y = BOARD_HEIGHT - ((screenRow * BLOCKHEIGHT) - scrollOffset);
 
             // Skip if row is completely off-screen
             if (y > BOARD_HEIGHT || y < -BLOCKHEIGHT) {
@@ -288,13 +319,17 @@ public class Scene1 extends JPanel {
     }
 
     private void drawBombing(Graphics g) {
-
         // for (Enemy e : enemies) {
-        //     Enemy.Bomb b = e.getBomb();
-        //     if (!b.isDestroyed()) {
-        //         g.drawImage(b.getImage(), b.getX(), b.getY(), this);
-        //     }
+        // Enemy.Bomb b = e.getBomb();
+        // if (!b.isDestroyed()) {
+        // g.drawImage(b.getImage(), b.getX(), b.getY(), this);
         // }
+        // }
+        for (Bomb bomb : bombs) {
+            if (!bomb.isDestroyed()) {
+                g.drawImage(bomb.getImage(), bomb.getX(), bomb.getY(), this);
+            }
+        }
     }
 
     private void drawExplosions(Graphics g) {
@@ -331,18 +366,19 @@ public class Scene1 extends JPanel {
         g.drawString("FRAME: " + frame, 10, 10);
         g.drawString("Score: " + deaths, 10, 25);
         g.drawString("Speed: " + player.getSpeed(), 10, 40);
-        g.drawString("Shots Upgrade: ", 10, 55);
+        g.drawString("Shots Upgrade: " + player.getMultiShotLevel(), 10, 55);
 
         g.setColor(Color.green);
 
         if (inGame) {
 
-            drawMap(g);  // Draw background stars first
+            drawMap(g); // Draw background stars first
             drawExplosions(g);
             drawPowreUps(g);
             drawAliens(g);
             drawPlayer(g);
             drawShot(g);
+            drawBombing(g); // Draw bombs
 
         } else {
 
@@ -377,7 +413,6 @@ public class Scene1 extends JPanel {
 
     private void update() {
 
-
         // Check enemy spawn
         // TODO this approach can only spawn one enemy at a frame
         SpawnDetails sd = spawnMap.get(frame);
@@ -390,13 +425,17 @@ public class Scene1 extends JPanel {
                     break;
                 // Add more cases for different enemy types if needed
                 case "Alien2":
-                    // Enemy enemy2 = new Alien2(sd.x, sd.y);
-                    // enemies.add(enemy2);
+                     Enemy enemy2 = new Alien2(sd.x, sd.y);
+                     enemies.add(enemy2);
                     break;
                 case "PowerUp-SpeedUp":
                     // Handle speed up item spawn
                     PowerUp speedUp = new SpeedUp(sd.x, sd.y);
                     powerups.add(speedUp);
+                    break;
+                case "PowerUp-MultiShot":
+                    PowerUp multiShot = new MultiShot(sd.x, sd.y);
+                    powerups.add(multiShot);
                     break;
                 default:
                     System.out.println("Unknown enemy type: " + sd.type);
@@ -427,6 +466,20 @@ public class Scene1 extends JPanel {
         for (Enemy enemy : enemies) {
             if (enemy.isVisible()) {
                 enemy.act(direction);
+
+                // Handle bomb spawning for Alien1
+                if (enemy instanceof Alien1) {
+                    Alien1 alien1 = (Alien1) enemy;
+                    Bomb bomb = alien1.getBomb();
+
+                    // Random chance to drop a bomb (3% chance per frame)
+                    if (randomizer.nextInt(15) < 3 && bomb.isDestroyed()) {
+                        bomb.setDestroyed(false);
+                        bomb.setX(alien1.getX());
+                        bomb.setY(alien1.getY());
+                        bombs.add(bomb);
+                    }
+                }
             }
         }
 
@@ -473,71 +526,105 @@ public class Scene1 extends JPanel {
         }
         shots.removeAll(shotsToRemove);
 
+        // Bombs logic
+        List<Bomb> bombsToRemove = new ArrayList<>();
+        for (Bomb bomb : bombs) {
+            if (!bomb.isDestroyed()) {
+                bomb.act(); // Move the bomb
+
+                // Check if bomb goes off screen
+                if (bomb.getY() > BOARD_HEIGHT) {
+                    bomb.setDestroyed(true);
+                    bombsToRemove.add(bomb);
+                }
+
+                // Check collision with player
+                int bombX = bomb.getX();
+                int bombY = bomb.getY();
+                int playerX = player.getX();
+                int playerY = player.getY();
+
+                if (player.isVisible() && !bomb.isDestroyed()
+                        && bombX >= (playerX)
+                        && bombX <= (playerX + PLAYER_WIDTH)
+                        && bombY >= (playerY)
+                        && bombY <= (playerY + PLAYER_HEIGHT)) {
+
+                    var ii = new ImageIcon(IMG_EXPLOSION);
+                    player.setImage(ii.getImage());
+                    player.setDying(true);
+                    bomb.setDestroyed(true);
+                    bombsToRemove.add(bomb);
+                }
+            }
+        }
+        bombs.removeAll(bombsToRemove);
+
         // enemies
         // for (Enemy enemy : enemies) {
-        //     int x = enemy.getX();
-        //     if (x >= BOARD_WIDTH - BORDER_RIGHT && direction != -1) {
-        //         direction = -1;
-        //         for (Enemy e2 : enemies) {
-        //             e2.setY(e2.getY() + GO_DOWN);
-        //         }
-        //     }
-        //     if (x <= BORDER_LEFT && direction != 1) {
-        //         direction = 1;
-        //         for (Enemy e : enemies) {
-        //             e.setY(e.getY() + GO_DOWN);
-        //         }
-        //     }
+        // int x = enemy.getX();
+        // if (x >= BOARD_WIDTH - BORDER_RIGHT && direction != -1) {
+        // direction = -1;
+        // for (Enemy e2 : enemies) {
+        // e2.setY(e2.getY() + GO_DOWN);
+        // }
+        // }
+        // if (x <= BORDER_LEFT && direction != 1) {
+        // direction = 1;
+        // for (Enemy e : enemies) {
+        // e.setY(e.getY() + GO_DOWN);
+        // }
+        // }
         // }
         // for (Enemy enemy : enemies) {
-        //     if (enemy.isVisible()) {
-        //         int y = enemy.getY();
-        //         if (y > GROUND - ALIEN_HEIGHT) {
-        //             inGame = false;
-        //             message = "Invasion!";
-        //         }
-        //         enemy.act(direction);
-        //     }
+        // if (enemy.isVisible()) {
+        // int y = enemy.getY();
+        // if (y > GROUND - ALIEN_HEIGHT) {
+        // inGame = false;
+        // message = "Invasion!";
+        // }
+        // enemy.act(direction);
+        // }
         // }
         // bombs - collision detection
         // Bomb is with enemy, so it loops over enemies
         /*
-        for (Enemy enemy : enemies) {
-
-            int chance = randomizer.nextInt(15);
-            Enemy.Bomb bomb = enemy.getBomb();
-
-            if (chance == CHANCE && enemy.isVisible() && bomb.isDestroyed()) {
-
-                bomb.setDestroyed(false);
-                bomb.setX(enemy.getX());
-                bomb.setY(enemy.getY());
-            }
-
-            int bombX = bomb.getX();
-            int bombY = bomb.getY();
-            int playerX = player.getX();
-            int playerY = player.getY();
-
-            if (player.isVisible() && !bomb.isDestroyed()
-                    && bombX >= (playerX)
-                    && bombX <= (playerX + PLAYER_WIDTH)
-                    && bombY >= (playerY)
-                    && bombY <= (playerY + PLAYER_HEIGHT)) {
-
-                var ii = new ImageIcon(IMG_EXPLOSION);
-                player.setImage(ii.getImage());
-                player.setDying(true);
-                bomb.setDestroyed(true);
-            }
-
-            if (!bomb.isDestroyed()) {
-                bomb.setY(bomb.getY() + 1);
-                if (bomb.getY() >= GROUND - BOMB_HEIGHT) {
-                    bomb.setDestroyed(true);
-                }
-            }
-        }
+         * for (Enemy enemy : enemies) {
+         *
+         * int chance = randomizer.nextInt(15);
+         * Enemy.Bomb bomb = enemy.getBomb();
+         *
+         * if (chance == CHANCE && enemy.isVisible() && bomb.isDestroyed()) {
+         *
+         * bomb.setDestroyed(false);
+         * bomb.setX(enemy.getX());
+         * bomb.setY(enemy.getY());
+         * }
+         *
+         * int bombX = bomb.getX();
+         * int bombY = bomb.getY();
+         * int playerX = player.getX();
+         * int playerY = player.getY();
+         *
+         * if (player.isVisible() && !bomb.isDestroyed()
+         * && bombX >= (playerX)
+         * && bombX <= (playerX + PLAYER_WIDTH)
+         * && bombY >= (playerY)
+         * && bombY <= (playerY + PLAYER_HEIGHT)) {
+         *
+         * var ii = new ImageIcon(IMG_EXPLOSION);
+         * player.setImage(ii.getImage());
+         * player.setDying(true);
+         * bomb.setDestroyed(true);
+         * }
+         *
+         * if (!bomb.isDestroyed()) {
+         * bomb.setY(bomb.getY() + 1);
+         * if (bomb.getY() >= GROUND - BOMB_HEIGHT) {
+         * bomb.setDestroyed(true);
+         * }
+         * }
+         * }
          */
     }
 
@@ -575,10 +662,28 @@ public class Scene1 extends JPanel {
 
             if (key == KeyEvent.VK_SPACE && inGame) {
                 System.out.println("Shots: " + shots.size());
-                if (shots.size() < 4) {
+                if (shots.size() < player.getMultiShotLevel() * 4) {
                     // Create a new shot and add it to the list
-                    Shot shot = new Shot(x, y);
-                    shots.add(shot);
+
+                    // Shot shot = new Shot(x, y);
+                    // shots.add(shot);
+
+                    if (player.getMultiShotLevel() == 1) {
+                        shots.add(new Shot(x, y));
+                    } else if (player.getMultiShotLevel() == 2) {
+                        shots.add(new Shot(x - 10, y));
+                        shots.add(new Shot(x + 10, y));
+                    } else if (player.getMultiShotLevel() == 3) {
+                        shots.add(new Shot(x - 20, y));
+                        shots.add(new Shot(x, y));
+                        shots.add(new Shot(x + 20, y));
+                    } else if (player.getMultiShotLevel() == 4) {
+                        shots.add(new Shot(x - 30, y));
+                        shots.add(new Shot(x - 10, y));
+                        shots.add(new Shot(x + 10, y));
+                        shots.add(new Shot(x + 30, y));
+                    }
+
                 }
             }
 

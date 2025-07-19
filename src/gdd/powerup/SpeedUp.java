@@ -12,6 +12,7 @@ import javax.swing.ImageIcon;
 
 public class SpeedUp extends PowerUp {
 
+
     public SpeedUp(int x, int y) {
         super(x, y);
         // Set image
@@ -28,10 +29,13 @@ public class SpeedUp extends PowerUp {
         this.y += 2; // Move down by 2 pixel each frame
     }
 
+    @Override
     public void upgrade(Player player) {
-        // Upgrade the player with speed boost
-        player.setSpeed(player.getSpeed() + 4); // Increase player's speed by 1
-        this.die(); // Remove the power-up after use
+        if (speedUpCount < MAX_ACTIVATIONS) {
+            player.setSpeed(player.getSpeed() + 4);
+            speedUpCount++;
+            this.die();
+        }
     }
 
 }
