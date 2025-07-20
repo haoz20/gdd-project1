@@ -365,7 +365,7 @@ public class Scene1 extends JPanel {
         g.setColor(Color.white);
         g.drawString("FRAME: " + frame, 10, 10);
         g.drawString("Score: " + deaths, 10, 25);
-        g.drawString("Speed: " + player.getSpeed(), 10, 40);
+        g.drawString("Speed: " + player.getSpeedLevel(), 10, 40);
         g.drawString("Shots Upgrade: " + player.getMultiShotLevel(), 10, 55);
 
         g.setColor(Color.green);

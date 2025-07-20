@@ -17,15 +17,18 @@ public class Player extends Sprite {
     private int currentSpeed = 2;
     private int multiShotLevel = 1;
 
+    private int speedLevel = 1;
+
     private static final String STILL = "still";
+
     private static final String LEFT = "left";
     private static final String RIGHT = "right";
     private String action = STILL;
-
     private int frameCounter = 0;
-    private static final int FRAME_THRESHOLD = 10; // Adjust this value to change the speed of the animation
 
+    private static final int FRAME_THRESHOLD = 10; // Adjust this value to change the speed of the animation
     private int clipNo = 0;
+
     private final Rectangle[] clips = new Rectangle[] {
             new Rectangle(152*SCALE_FACTOR, 48*SCALE_FACTOR, 15*SCALE_FACTOR, 28*SCALE_FACTOR), // 0: still
             new Rectangle(176*SCALE_FACTOR, 48*SCALE_FACTOR, 15*SCALE_FACTOR, 28*SCALE_FACTOR), // 1: still flying
@@ -34,7 +37,6 @@ public class Player extends Sprite {
     };
 
 //    private Rectangle bounds = new Rectangle(175,135,16,32);
-
     public Player() {
         initPlayer();
     }
@@ -62,6 +64,14 @@ public class Player extends Sprite {
         }
         this.currentSpeed = speed;
         return currentSpeed;
+    }
+
+    public int getSpeedLevel() {
+        return speedLevel;
+    }
+
+    public void setSpeedLevel(int speedLevel) {
+        this.speedLevel = speedLevel;
     }
 
     @Override
