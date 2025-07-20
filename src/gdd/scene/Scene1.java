@@ -655,7 +655,7 @@ public class Scene1 extends JPanel {
 
             player.keyPressed(e);
 
-            int x = player.getX();
+            int x = player.getX() - (PLAYER_WIDTH / 2) + 5; // Center the shot
             int y = player.getY();
 
             int key = e.getKeyCode();
@@ -667,21 +667,22 @@ public class Scene1 extends JPanel {
 
                     // Shot shot = new Shot(x, y);
                     // shots.add(shot);
+                    int clipNo = Math.min(player.getMultiShotLevel()-1, 2); // Ensure clipNo is within bounds
 
                     if (player.getMultiShotLevel() == 1) {
-                        shots.add(new Shot(x, y));
+                        shots.add(new Shot(x, y, clipNo));
                     } else if (player.getMultiShotLevel() == 2) {
-                        shots.add(new Shot(x - 10, y));
-                        shots.add(new Shot(x + 10, y));
+                        shots.add(new Shot(x - 10, y, clipNo));
+                        shots.add(new Shot(x + 10, y, clipNo));
                     } else if (player.getMultiShotLevel() == 3) {
-                        shots.add(new Shot(x - 20, y));
-                        shots.add(new Shot(x, y));
-                        shots.add(new Shot(x + 20, y));
+                        shots.add(new Shot(x - 20, y, clipNo));
+                        shots.add(new Shot(x, y, clipNo));
+                        shots.add(new Shot(x + 20, y, clipNo));
                     } else if (player.getMultiShotLevel() == 4) {
-                        shots.add(new Shot(x - 30, y));
-                        shots.add(new Shot(x - 10, y));
-                        shots.add(new Shot(x + 10, y));
-                        shots.add(new Shot(x + 30, y));
+                        shots.add(new Shot(x - 30, y, clipNo));
+                        shots.add(new Shot(x - 10, y, clipNo));
+                        shots.add(new Shot(x + 10, y, clipNo));
+                        shots.add(new Shot(x + 30, y, clipNo));
                     }
 
                 }

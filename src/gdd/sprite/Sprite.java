@@ -1,5 +1,6 @@
 package gdd.sprite;
 
+import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 
@@ -87,8 +88,20 @@ abstract public class Sprite {
             return bImage;
         }
 
+        // Ensure the image is fully loaded
+        ImageIcon icon = new ImageIcon(img);
+        img = icon.getImage();
+
+        int width = img.getWidth(null);
+        int height = img.getHeight(null);
+
+        // Check if dimensions are valid
+        if (width <= 0 || height <= 0) {
+            throw new IllegalArgumentException("Image dimensions are invalid: " + width + "x" + height);
+        }
+
         // Create a buffered image with transparency
-        BufferedImage bimage = new BufferedImage(img.getWidth(null), img.getHeight(null), BufferedImage.TYPE_INT_ARGB);
+        BufferedImage bimage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
 
         // Draw the image on to the buffered image
         Graphics2D bGr = bimage.createGraphics();

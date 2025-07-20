@@ -27,20 +27,20 @@ public class Player extends Sprite {
 
     private int clipNo = 0;
     private final Rectangle[] clips = new Rectangle[] {
-            new Rectangle(152*SCALE_FACTOR, 48*SCALE_FACTOR, 16*SCALE_FACTOR, 32*SCALE_FACTOR), // 0: still
-            new Rectangle(176*SCALE_FACTOR, 48*SCALE_FACTOR, 16*SCALE_FACTOR, 32*SCALE_FACTOR), // 1: still flying
-            new Rectangle(200*SCALE_FACTOR, 48*SCALE_FACTOR, 16*SCALE_FACTOR, 32*SCALE_FACTOR), // 1: left
-            new Rectangle(224*SCALE_FACTOR, 48*SCALE_FACTOR, 16*SCALE_FACTOR, 32*SCALE_FACTOR) // 2: right
+            new Rectangle(152*SCALE_FACTOR, 48*SCALE_FACTOR, 15*SCALE_FACTOR, 28*SCALE_FACTOR), // 0: still
+            new Rectangle(176*SCALE_FACTOR, 48*SCALE_FACTOR, 15*SCALE_FACTOR, 28*SCALE_FACTOR), // 1: still flying
+            new Rectangle(200*SCALE_FACTOR, 48*SCALE_FACTOR, 15*SCALE_FACTOR, 28*SCALE_FACTOR), // 2: left
+            new Rectangle(224*SCALE_FACTOR, 48*SCALE_FACTOR, 15*SCALE_FACTOR, 28*SCALE_FACTOR) // 3: right
     };
 
-    private Rectangle bounds = new Rectangle(175,135,16,32);
+//    private Rectangle bounds = new Rectangle(175,135,16,32);
 
     public Player() {
         initPlayer();
     }
 
     private void initPlayer() {
-        var ii = new ImageIcon("src/images/spites.png");
+        var ii = new ImageIcon(IMG_PLAYER);
 
         // Scale the image to use the global scaling factor
         var scaledImage = ii.getImage().getScaledInstance(ii.getIconWidth() * SCALE_FACTOR,
