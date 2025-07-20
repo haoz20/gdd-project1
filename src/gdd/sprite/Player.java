@@ -22,11 +22,13 @@ public class Player extends Sprite {
     private static final String RIGHT = "right";
     private String action = STILL;
 
-
+    private int frameCounter = 0;
+    private static final int FRAME_THRESHOLD = 10; // Adjust this value to change the speed of the animation
 
     private int clipNo = 0;
     private final Rectangle[] clips = new Rectangle[] {
             new Rectangle(152*SCALE_FACTOR, 48*SCALE_FACTOR, 16*SCALE_FACTOR, 32*SCALE_FACTOR), // 0: still
+            new Rectangle(176*SCALE_FACTOR, 48*SCALE_FACTOR, 16*SCALE_FACTOR, 32*SCALE_FACTOR), // 1: still flying
             new Rectangle(200*SCALE_FACTOR, 48*SCALE_FACTOR, 16*SCALE_FACTOR, 32*SCALE_FACTOR), // 1: left
             new Rectangle(224*SCALE_FACTOR, 48*SCALE_FACTOR, 16*SCALE_FACTOR, 32*SCALE_FACTOR) // 2: right
     };
@@ -90,13 +92,17 @@ public class Player extends Sprite {
 
         switch (action) {
             case STILL:
-                clipNo = 0;
+                frameCounter++;
+                if (frameCounter >= FRAME_THRESHOLD) {
+                    frameCounter = 0; // Reset the counter
+                    clipNo = (clipNo == 0) ? 1 : 0; // Alternate between clip0 and clip1
+                }
                 break;
             case LEFT:
-                clipNo = 1;
+                clipNo = 2;
                 break;
             case RIGHT:
-                clipNo = 2;
+                clipNo = 3;
                 break;
         }
     }
