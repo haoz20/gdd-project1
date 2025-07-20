@@ -1,8 +1,12 @@
 package gdd.sprite;
 
+import org.w3c.dom.css.Rect;
+
 import static gdd.Global.*;
-import java.awt.Rectangle;
+
+import java.awt.*;
 import java.awt.event.KeyEvent;
+import java.awt.image.BufferedImage;
 import javax.swing.ImageIcon;
 
 public class Player extends Sprite {
@@ -16,6 +20,13 @@ public class Player extends Sprite {
 
     private int multiShotLevel = 1;
 
+    private int clipNo = 0;
+    private final Rectangle[] clips = new Rectangle[] {
+            new Rectangle(), // 0: still
+            new Rectangle(), // 1: left
+            new Rectangle() // 2: right
+    };
+
     private Rectangle bounds = new Rectangle(175,135,17,32);
 
     public Player() {
@@ -23,7 +34,7 @@ public class Player extends Sprite {
     }
 
     private void initPlayer() {
-        var ii = new ImageIcon(IMG_PLAYER);
+        var ii = new ImageIcon("src/images/sprites.png");
 
         // Scale the image to use the global scaling factor
         var scaledImage = ii.getImage().getScaledInstance(ii.getIconWidth() * SCALE_FACTOR,
@@ -45,6 +56,13 @@ public class Player extends Sprite {
         }
         this.currentSpeed = speed;
         return currentSpeed;
+    }
+
+    @Override
+    public Image getImage() {
+        Rectangle bound = clips[clipNo];
+        BufferedImage bImage = toBufferedImage(image);
+        return bImage.getSubimage(bound.x, bound.y, bound.width, bound.height);
     }
 
     public int getMultiShotLevel() {
