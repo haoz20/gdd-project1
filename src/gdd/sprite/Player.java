@@ -68,6 +68,16 @@ public class Player extends Sprite {
     public Image getImage() {
         Rectangle bound = clips[clipNo];
         BufferedImage bImage = toBufferedImage(image);
+
+        // Check if the bounds are within the image
+        int maxX = bound.x + bound.width;
+        int maxY = bound.y + bound.height;
+
+        if (maxX > bImage.getWidth() || maxY > bImage.getHeight()) {
+            // If bounds exceed image, return the full image or a safe portion
+            return bImage;
+        }
+
         return bImage.getSubimage(bound.x, bound.y, bound.width, bound.height);
     }
 

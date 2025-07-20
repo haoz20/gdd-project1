@@ -10,7 +10,6 @@ abstract public class Sprite {
     protected Image image;
     protected boolean dying;
     protected int visibleFrames = 10;
-
     protected int x;
     protected int y;
     protected int dx;
