@@ -15,26 +15,30 @@ public class Player extends Sprite {
     private static final int START_Y = 540;
     private int width;
     private int currentSpeed = 2;
-
-
-
     private int multiShotLevel = 1;
+
+    private static final String STILL = "still";
+    private static final String LEFT = "left";
+    private static final String RIGHT = "right";
+    private String action = STILL;
+
+
 
     private int clipNo = 0;
     private final Rectangle[] clips = new Rectangle[] {
-            new Rectangle(), // 0: still
-            new Rectangle(), // 1: left
-            new Rectangle() // 2: right
+            new Rectangle(152*SCALE_FACTOR, 48*SCALE_FACTOR, 16*SCALE_FACTOR, 32*SCALE_FACTOR), // 0: still
+            new Rectangle(200*SCALE_FACTOR, 48*SCALE_FACTOR, 16*SCALE_FACTOR, 32*SCALE_FACTOR), // 1: left
+            new Rectangle(224*SCALE_FACTOR, 48*SCALE_FACTOR, 16*SCALE_FACTOR, 32*SCALE_FACTOR) // 2: right
     };
 
-    private Rectangle bounds = new Rectangle(175,135,17,32);
+    private Rectangle bounds = new Rectangle(175,135,16,32);
 
     public Player() {
         initPlayer();
     }
 
     private void initPlayer() {
-        var ii = new ImageIcon("src/images/sprites.png");
+        var ii = new ImageIcon("src/images/spites.png");
 
         // Scale the image to use the global scaling factor
         var scaledImage = ii.getImage().getScaledInstance(ii.getIconWidth() * SCALE_FACTOR,
@@ -83,16 +87,30 @@ public class Player extends Sprite {
         if (x >= BOARD_WIDTH - 2 * width) {
             x = BOARD_WIDTH - 2 * width;
         }
+
+        switch (action) {
+            case STILL:
+                clipNo = 0;
+                break;
+            case LEFT:
+                clipNo = 1;
+                break;
+            case RIGHT:
+                clipNo = 2;
+                break;
+        }
     }
 
     public void keyPressed(KeyEvent e) {
         int key = e.getKeyCode();
 
         if (key == KeyEvent.VK_LEFT) {
+            action = LEFT;
             dx = -currentSpeed;
         }
 
         if (key == KeyEvent.VK_RIGHT) {
+            action = RIGHT;
             dx = currentSpeed;
         }
     }
@@ -101,10 +119,12 @@ public class Player extends Sprite {
         int key = e.getKeyCode();
 
         if (key == KeyEvent.VK_LEFT) {
+            action = STILL;
             dx = 0;
         }
 
         if (key == KeyEvent.VK_RIGHT) {
+            action = STILL;
             dx = 0;
         }
     }
