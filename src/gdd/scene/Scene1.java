@@ -12,6 +12,7 @@ import gdd.powerup.SpeedUp;
 import gdd.sprite.Alien1;
 import gdd.sprite.Alien1.*;
 import gdd.sprite.Alien2;
+import gdd.sprite.Alien2.Bomb2;
 import gdd.sprite.Enemy;
 import gdd.sprite.Explosion;
 import gdd.sprite.Player;
@@ -45,6 +46,7 @@ public class Scene1 extends JPanel {
     private List<Explosion> explosions;
     private List<Shot> shots;
     private List<Bomb> bombs = new ArrayList<>();
+    private List<Bomb2> bombs2 = new ArrayList<>();
     private Player player;
     // private Shot shot;
 
@@ -332,6 +334,20 @@ public class Scene1 extends JPanel {
         }
     }
 
+    private void drawBomb2 (Graphics g) {
+        // for (Enemy e : enemies) {
+        // Enemy.Bomb b = e.getBomb();
+        // if (!b.isDestroyed()) {
+        // g.drawImage(b.getImage(), b.getX(), b.getY(), this);
+        // }
+        // }
+        for (Bomb2 bomb2 : bombs2) {
+            if (!bomb2.isDestroyed()) {
+                g.drawImage(bomb2.getImage(), bomb2.getX(), bomb2.getY(), this);
+            }
+        }
+    }
+
     private void drawExplosions(Graphics g) {
 
         List<Explosion> toRemove = new ArrayList<>();
@@ -365,7 +381,7 @@ public class Scene1 extends JPanel {
         g.setColor(Color.white);
         g.drawString("FRAME: " + frame, 10, 10);
         g.drawString("Score: " + deaths, 10, 25);
-        g.drawString("Speed: " + player.getSpeed(), 10, 40);
+        g.drawString("Speed: " + player.getSpeedLevel(), 10, 40);
         g.drawString("Shots Upgrade: " + player.getMultiShotLevel(), 10, 55);
 
         g.setColor(Color.green);
@@ -378,7 +394,8 @@ public class Scene1 extends JPanel {
             drawAliens(g);
             drawPlayer(g);
             drawShot(g);
-            drawBombing(g); // Draw bombs
+            drawBombing(g);
+            drawBomb2(g);// Draw bombs
 
         } else {
 
@@ -475,9 +492,29 @@ public class Scene1 extends JPanel {
                     // Random chance to drop a bomb (3% chance per frame)
                     if (randomizer.nextInt(15) < 3 && bomb.isDestroyed()) {
                         bomb.setDestroyed(false);
-                        bomb.setX(alien1.getX());
-                        bomb.setY(alien1.getY());
+                        int alienWidth = alien1.getImage().getWidth(null);
+                        int bombWidth = bomb.getImage().getWidth(null);
+                        int bombX = alien1.getX() + (alienWidth / 2) - (bombWidth / 2);
+                        int bombY = alien1.getY() + alien1.getImage().getHeight(null);
+                        bomb.setX(bombX - 3);
+                        bomb.setY(bombY);
                         bombs.add(bomb);
+                    }
+                }
+                if (enemy instanceof Alien2) {
+                    Alien2 alien2 = (Alien2) enemy;
+                    Bomb2 bomb2 = alien2.getBomb();
+
+                    // Random chance to drop a bomb (3% chance per frame)
+                    if (randomizer.nextInt(15) < 3 && bomb2.isDestroyed()) {
+                        bomb2.setDestroyed(false);
+                        int alienWidth = alien2.getImage().getWidth(null);
+                        int bombWidth = bomb2.getImage().getWidth(null);
+                        int bombX = alien2.getX() + (alienWidth / 2) - (bombWidth / 2);
+                        int bombY = alien2.getY() + alien2.getImage().getHeight(null);
+                        bomb2.setX(bombX - 3);
+                        bomb2.setY(bombY);
+                        bombs2.add(bomb2);
                     }
                 }
             }
@@ -555,6 +592,39 @@ public class Scene1 extends JPanel {
                     player.setDying(true);
                     bomb.setDestroyed(true);
                     bombsToRemove.add(bomb);
+                }
+            }
+        }
+        bombs.removeAll(bombsToRemove);
+
+        List<Bomb2> bombs2ToRemove = new ArrayList<>();
+        for (Bomb2 bomb2 : bombs2) {
+            if (!bomb2.isDestroyed()) {
+                bomb2.act(); // Move the bomb
+
+                // Check if bomb goes off screen
+                if (bomb2.getY() > BOARD_HEIGHT) {
+                    bomb2.setDestroyed(true);
+                    bombs2ToRemove.add(bomb2);
+                }
+
+                // Check collision with player
+                int bombX = bomb2.getX();
+                int bombY = bomb2.getY();
+                int playerX = player.getX();
+                int playerY = player.getY();
+
+                if (player.isVisible() && !bomb2.isDestroyed()
+                        && bombX >= (playerX)
+                        && bombX <= (playerX + PLAYER_WIDTH)
+                        && bombY >= (playerY)
+                        && bombY <= (playerY + PLAYER_HEIGHT)) {
+
+                    var ii = new ImageIcon(IMG_EXPLOSION);
+                    player.setImage(ii.getImage());
+                    player.setDying(true);
+                    bomb2.setDestroyed(true);
+                    bombs2ToRemove.add(bomb2);
                 }
             }
         }
@@ -655,7 +725,7 @@ public class Scene1 extends JPanel {
 
             player.keyPressed(e);
 
-            int x = player.getX();
+            int x = player.getX() - (PLAYER_WIDTH / 2) + 5; // Center the shot
             int y = player.getY();
 
             int key = e.getKeyCode();
@@ -667,21 +737,22 @@ public class Scene1 extends JPanel {
 
                     // Shot shot = new Shot(x, y);
                     // shots.add(shot);
+                    int clipNo = Math.min(player.getMultiShotLevel()-1, 2); // Ensure clipNo is within bounds
 
                     if (player.getMultiShotLevel() == 1) {
-                        shots.add(new Shot(x, y));
+                        shots.add(new Shot(x, y, clipNo));
                     } else if (player.getMultiShotLevel() == 2) {
-                        shots.add(new Shot(x - 10, y));
-                        shots.add(new Shot(x + 10, y));
+                        shots.add(new Shot(x - 10, y, clipNo));
+                        shots.add(new Shot(x + 10, y, clipNo));
                     } else if (player.getMultiShotLevel() == 3) {
-                        shots.add(new Shot(x - 20, y));
-                        shots.add(new Shot(x, y));
-                        shots.add(new Shot(x + 20, y));
+                        shots.add(new Shot(x - 20, y, clipNo));
+                        shots.add(new Shot(x, y, clipNo));
+                        shots.add(new Shot(x + 20, y, clipNo));
                     } else if (player.getMultiShotLevel() == 4) {
-                        shots.add(new Shot(x - 30, y));
-                        shots.add(new Shot(x - 10, y));
-                        shots.add(new Shot(x + 10, y));
-                        shots.add(new Shot(x + 30, y));
+                        shots.add(new Shot(x - 30, y, clipNo));
+                        shots.add(new Shot(x - 10, y, clipNo));
+                        shots.add(new Shot(x + 10, y, clipNo));
+                        shots.add(new Shot(x + 30, y, clipNo));
                     }
 
                 }

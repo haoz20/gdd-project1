@@ -1,6 +1,8 @@
 package gdd.sprite;
 
-import java.awt.Image;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.image.BufferedImage;
 
 abstract public class Sprite {
 
@@ -8,7 +10,6 @@ abstract public class Sprite {
     protected Image image;
     protected boolean dying;
     protected int visibleFrames = 10;
-
     protected int x;
     protected int y;
     protected int dx;
@@ -79,5 +80,34 @@ abstract public class Sprite {
 
     public boolean isDying() {
         return this.dying;
+    }
+
+    public BufferedImage toBufferedImage(Image img) {
+        if (img instanceof BufferedImage bImage) {
+            return bImage;
+        }
+
+        // Ensure the image is fully loaded
+        ImageIcon icon = new ImageIcon(img);
+        img = icon.getImage();
+
+        int width = img.getWidth(null);
+        int height = img.getHeight(null);
+
+        // Check if dimensions are valid
+        if (width <= 0 || height <= 0) {
+            throw new IllegalArgumentException("Image dimensions are invalid: " + width + "x" + height);
+        }
+
+        // Create a buffered image with transparency
+        BufferedImage bimage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+
+        // Draw the image on to the buffered image
+        Graphics2D bGr = bimage.createGraphics();
+        bGr.drawImage(img, 0, 0, null);
+        bGr.dispose();
+
+        // Return the buffered image
+        return bimage;
     }
 }

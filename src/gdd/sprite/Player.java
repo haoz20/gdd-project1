@@ -1,8 +1,12 @@
 package gdd.sprite;
 
+import org.w3c.dom.css.Rect;
+
 import static gdd.Global.*;
-import java.awt.Rectangle;
+
+import java.awt.*;
 import java.awt.event.KeyEvent;
+import java.awt.image.BufferedImage;
 import javax.swing.ImageIcon;
 
 public class Player extends Sprite {
@@ -11,13 +15,28 @@ public class Player extends Sprite {
     private static final int START_Y = 540;
     private int width;
     private int currentSpeed = 2;
-
-
-
     private int multiShotLevel = 1;
 
-    private Rectangle bounds = new Rectangle(175,135,17,32);
+    private int speedLevel = 1;
 
+    private static final String STILL = "still";
+
+    private static final String LEFT = "left";
+    private static final String RIGHT = "right";
+    private String action = STILL;
+    private int frameCounter = 0;
+
+    private static final int FRAME_THRESHOLD = 10; // Adjust this value to change the speed of the animation
+    private int clipNo = 0;
+
+    private final Rectangle[] clips = new Rectangle[] {
+            new Rectangle(152*SCALE_FACTOR, 48*SCALE_FACTOR, 15*SCALE_FACTOR, 28*SCALE_FACTOR), // 0: still
+            new Rectangle(176*SCALE_FACTOR, 48*SCALE_FACTOR, 15*SCALE_FACTOR, 28*SCALE_FACTOR), // 1: still flying
+            new Rectangle(200*SCALE_FACTOR, 48*SCALE_FACTOR, 15*SCALE_FACTOR, 28*SCALE_FACTOR), // 2: left
+            new Rectangle(224*SCALE_FACTOR, 48*SCALE_FACTOR, 15*SCALE_FACTOR, 28*SCALE_FACTOR) // 3: right
+    };
+
+//    private Rectangle bounds = new Rectangle(175,135,16,32);
     public Player() {
         initPlayer();
     }
@@ -47,6 +66,31 @@ public class Player extends Sprite {
         return currentSpeed;
     }
 
+    public int getSpeedLevel() {
+        return speedLevel;
+    }
+
+    public void setSpeedLevel(int speedLevel) {
+        this.speedLevel = speedLevel;
+    }
+
+    @Override
+    public Image getImage() {
+        Rectangle bound = clips[clipNo];
+        BufferedImage bImage = toBufferedImage(image);
+
+        // Check if the bounds are within the image
+        int maxX = bound.x + bound.width;
+        int maxY = bound.y + bound.height;
+
+        if (maxX > bImage.getWidth() || maxY > bImage.getHeight()) {
+            // If bounds exceed image, return the full image or a safe portion
+            return bImage;
+        }
+
+        return bImage.getSubimage(bound.x, bound.y, bound.width, bound.height);
+    }
+
     public int getMultiShotLevel() {
         return multiShotLevel;
     }
@@ -58,12 +102,38 @@ public class Player extends Sprite {
     public void act() {
         x += dx;
 
+        int spriteWidth = getImage().getWidth(null);
+        int spriteHeight = getImage().getHeight(null);
+        int centerX = x + spriteWidth / 2;
+
         if (x <= 2) {
             x = 2;
         }
 
-        if (x >= BOARD_WIDTH - 2 * width) {
-            x = BOARD_WIDTH - 2 * width;
+//        if (x >= BOARD_WIDTH - 2 * width) {
+//            x = BOARD_WIDTH - 2 * width;
+//        }
+        if (centerX <= spriteWidth / 2) {
+            x = 0; // Prevent moving out of bounds on the left
+        }
+        if (centerX >= BOARD_WIDTH - spriteWidth / 2) {
+            x = BOARD_WIDTH - spriteWidth; // Prevent moving out of bounds on the right
+        }
+
+        switch (action) {
+            case STILL:
+                frameCounter++;
+                if (frameCounter >= FRAME_THRESHOLD) {
+                    frameCounter = 0; // Reset the counter
+                    clipNo = (clipNo == 0) ? 1 : 0; // Alternate between clip0 and clip1
+                }
+                break;
+            case LEFT:
+                clipNo = 2;
+                break;
+            case RIGHT:
+                clipNo = 3;
+                break;
         }
     }
 
@@ -71,10 +141,12 @@ public class Player extends Sprite {
         int key = e.getKeyCode();
 
         if (key == KeyEvent.VK_LEFT) {
+            action = LEFT;
             dx = -currentSpeed;
         }
 
         if (key == KeyEvent.VK_RIGHT) {
+            action = RIGHT;
             dx = currentSpeed;
         }
     }
@@ -83,10 +155,12 @@ public class Player extends Sprite {
         int key = e.getKeyCode();
 
         if (key == KeyEvent.VK_LEFT) {
+            action = STILL;
             dx = 0;
         }
 
         if (key == KeyEvent.VK_RIGHT) {
+            action = STILL;
             dx = 0;
         }
     }

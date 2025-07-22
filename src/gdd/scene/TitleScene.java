@@ -44,7 +44,7 @@ public class TitleScene extends JPanel {
         timer.start();
 
         initTitle();
-        initAudio();
+//        initAudio();
     }
 
     public void stop() {
@@ -102,10 +102,11 @@ public class TitleScene extends JPanel {
                 "Thiri Htet: 6611714",
                 "Min Thet Naung: 6530142"
         };
+        g.drawString("Team Name: 404 player", 10, 20);
 
         int lineHeight = g.getFontMetrics().getHeight();
         for (int i = 0; i < members.length; i++) {
-            g.drawString(members[i], 10, 20 + (i * lineHeight));
+            g.drawString(members[i], 10, 40 + (i * lineHeight));
         }
 
         g.setFont(g.getFont().deriveFont(12f));
