@@ -102,12 +102,22 @@ public class Player extends Sprite {
     public void act() {
         x += dx;
 
+        int spriteWidth = getImage().getWidth(null);
+        int spriteHeight = getImage().getHeight(null);
+        int centerX = x + spriteWidth / 2;
+
         if (x <= 2) {
             x = 2;
         }
 
-        if (x >= BOARD_WIDTH - 2 * width) {
-            x = BOARD_WIDTH - 2 * width;
+//        if (x >= BOARD_WIDTH - 2 * width) {
+//            x = BOARD_WIDTH - 2 * width;
+//        }
+        if (centerX <= spriteWidth / 2) {
+            x = 0; // Prevent moving out of bounds on the left
+        }
+        if (centerX >= BOARD_WIDTH - spriteWidth / 2) {
+            x = BOARD_WIDTH - spriteWidth; // Prevent moving out of bounds on the right
         }
 
         switch (action) {
