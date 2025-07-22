@@ -3,3 +3,4 @@
 .idea/
 gdd-space-invaders-project.iml
 out/
+*.iml
