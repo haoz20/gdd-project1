@@ -475,8 +475,12 @@ public class Scene1 extends JPanel {
                     // Random chance to drop a bomb (3% chance per frame)
                     if (randomizer.nextInt(15) < 3 && bomb.isDestroyed()) {
                         bomb.setDestroyed(false);
-                        bomb.setX(alien1.getX());
-                        bomb.setY(alien1.getY());
+                        int alienWidth = alien1.getImage().getWidth(null);
+                        int bombWidth = bomb.getImage().getWidth(null);
+                        int bombX = alien1.getX() + (alienWidth / 2) - (bombWidth / 2);
+                        int bombY = alien1.getY() + alien1.getImage().getHeight(null);
+                        bomb.setX(bombX);
+                        bomb.setY(bombY);
                         bombs.add(bomb);
                     }
                 }

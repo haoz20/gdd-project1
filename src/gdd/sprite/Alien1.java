@@ -14,8 +14,8 @@ public class Alien1 extends Enemy {
     private int frameCounter = 0;
     private static final int FRAME_THRESHOLD = 10;
     private final Rectangle[] clips = new Rectangle[] {
-            new Rectangle(766, 167, 52, 38),
-            new Rectangle(851, 167, 52, 38)
+            new Rectangle(766, 167, 50, 38),
+            new Rectangle(851, 167, 50, 38)
     };
 
     public Alien1(int x, int y) {
@@ -75,6 +75,10 @@ public class Alien1 extends Enemy {
     public class Bomb extends Sprite {
 
         private boolean destroyed;
+        private int clipNo = 0;
+        private Rectangle[] clips = new Rectangle[] {
+                new Rectangle(620, 390, 5, 12)
+        };
 
         public Bomb(int x, int y) {
 
@@ -87,10 +91,11 @@ public class Alien1 extends Enemy {
 //            int alienWidth = new ImageIcon(IMG_ENEMY).getIconWidth() * SCALE_FACTOR;
 //            int bombWidth = new ImageIcon("src/images/bomb.png").getIconWidth();
 
-            this.x = x;
+            int alienWidth = Alien1.this.clips[0].width;
+            int bombWidth = clips[0].width;
+            this.x = x + (alienWidth / 2) - (bombWidth / 2); // Adjust bomb position relative to alien
             this.y = y;
-
-            var bombImg = "src/images/bomb.png";
+            var bombImg = "src/images/aliens.png";
             var ii = new ImageIcon(bombImg);
             setImage(ii.getImage());
         }
@@ -103,6 +108,23 @@ public class Alien1 extends Enemy {
         public boolean isDestroyed() {
 
             return destroyed;
+        }
+
+        @Override
+        public Image getImage() {
+            Rectangle bound = clips[clipNo];
+            BufferedImage bImage = toBufferedImage(image);
+
+            // Check if the bounds are within the image
+            int maxX = bound.x + bound.width;
+            int maxY = bound.y + bound.height;
+
+            if (maxX > bImage.getWidth() || maxY > bImage.getHeight()) {
+                // If bounds exceed image, return the full image or a safe portion
+                return bImage;
+            }
+
+            return bImage.getSubimage(bound.x, bound.y, bound.width, bound.height);
         }
 
         @Override

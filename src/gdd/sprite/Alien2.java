@@ -14,8 +14,8 @@ public class Alien2 extends Enemy {
     private static final int FRAME_THRESHOLD = 10;
     private int clipNo = 0;
     private final Rectangle[] clips = new Rectangle[] {
-            new Rectangle(594, 167, 52, 38),
-            new Rectangle(679, 167, 52, 38)
+            new Rectangle(594, 167, 50, 38),
+            new Rectangle(679, 167, 50, 38)
     };
 
     public Alien2(int x, int y) {
