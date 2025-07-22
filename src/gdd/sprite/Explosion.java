@@ -10,7 +10,7 @@ public class Explosion extends Sprite {
 
     private int clipNo = 0;
     private final Rectangle[] clips = new Rectangle[] {
-            new Rectangle(517,323,41,26)
+            new Rectangle(1089,169,49,36)
     };
 
     public Explosion(int x, int y) {
