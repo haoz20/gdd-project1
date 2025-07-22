@@ -1,7 +1,5 @@
 package gdd.sprite;
 
-import gdd.Global;
-
 import static gdd.Global.*;
 import javax.swing.ImageIcon;
 import java.awt.*;
@@ -75,9 +73,12 @@ public class Alien1 extends Enemy {
     public class Bomb extends Sprite {
 
         private boolean destroyed;
+        private int frameNo = 0;
+        private int frame = 5;
         private int clipNo = 0;
         private Rectangle[] clips = new Rectangle[] {
-                new Rectangle(620, 390, 5, 12)
+                new Rectangle(620, 390, 5, 12),
+                new Rectangle(628 , 390, 5, 12)
         };
 
         public Bomb(int x, int y) {
@@ -130,6 +131,14 @@ public class Alien1 extends Enemy {
         @Override
         public void act() {
             this.y += 2; // Bomb falls down
+
+
+            frameNo++;
+            if (frameNo >= frame) {
+                frameNo = 0; // Reset the counter
+                clipNo = (clipNo == 0) ? 1 : 0; // Alternate between clip0 and clip1
+            }
+
         }
     }
 }
