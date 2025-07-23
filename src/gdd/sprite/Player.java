@@ -17,6 +17,12 @@ public class Player extends Sprite {
     private int currentSpeed = 2;
     private int multiShotLevel = 1;
 
+
+//     private int multiShotLevel = 1;
+    
+    // Add vertical movement variable
+    protected int dy;
+
     private int speedLevel = 1;
 
     private static final String STILL = "still";
@@ -28,6 +34,7 @@ public class Player extends Sprite {
 
     private static final int FRAME_THRESHOLD = 10; // Adjust this value to change the speed of the animation
     private int clipNo = 0;
+
 
     private final Rectangle[] clips = new Rectangle[] {
             new Rectangle(152*SCALE_FACTOR, 48*SCALE_FACTOR, 15*SCALE_FACTOR, 28*SCALE_FACTOR), // 0: still
@@ -100,7 +107,12 @@ public class Player extends Sprite {
     }
 
     public void act() {
+        // Update position based on dx and dy
         x += dx;
+        y += dy;
+
+
+        // Boundary checks
 
         int spriteWidth = getImage().getWidth(null);
         int spriteHeight = getImage().getHeight(null);
@@ -135,6 +147,15 @@ public class Player extends Sprite {
                 clipNo = 3;
                 break;
         }
+        
+        // Add vertical boundary checks
+        if (y <= 2) {
+            y = 2;
+        }
+        
+        if (y >= BOARD_HEIGHT - 50) {
+            y = BOARD_HEIGHT - 50;
+        }
     }
 
     public void keyPressed(KeyEvent e) {
@@ -149,6 +170,15 @@ public class Player extends Sprite {
             action = RIGHT;
             dx = currentSpeed;
         }
+        
+        // Add up/down movement
+        if (key == KeyEvent.VK_UP) {
+            dy = -currentSpeed;
+        }
+        
+        if (key == KeyEvent.VK_DOWN) {
+            dy = currentSpeed;
+        }
     }
 
     public void keyReleased(KeyEvent e) {
@@ -162,6 +192,15 @@ public class Player extends Sprite {
         if (key == KeyEvent.VK_RIGHT) {
             action = STILL;
             dx = 0;
+        }
+        
+        // Add up/down release handling
+        if (key == KeyEvent.VK_UP) {
+            dy = 0;
+        }
+        
+        if (key == KeyEvent.VK_DOWN) {
+            dy = 0;
         }
     }
 }

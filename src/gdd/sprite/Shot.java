@@ -22,8 +22,26 @@ public class Shot extends Sprite {
     public Shot() {
     }
 
+    // add velocity for spread shots
+    private int velocityX = 0;
+    private int velocityY = 0;
+
+    public void setSpreadVelocity(int vx, int vy) {
+        this.velocityX = vx;
+        this.velocityY = vy;
+    }
+
     @Override
     public void act() {
+
+        if (velocityX != 0 || velocityY != 0) {
+            // Use custom velocity for spread shots
+            this.x += velocityX;
+            this.y += velocityY;
+        } else {
+            this.x += 4;
+        }
+
         // Move the shot upward
         y -= 2; // Adjust speed as needed
 
@@ -33,6 +51,7 @@ public class Shot extends Sprite {
 //            frame = 0; // Reset the frame counter
 //            clipNo = (clipNo + 1) % clips.length; // Cycle through all clips
 //        }
+
     }
 
     public Shot(int x, int y) {
