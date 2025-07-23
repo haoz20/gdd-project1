@@ -12,9 +12,10 @@ public class Player extends Sprite {
     private int width;
     private int currentSpeed = 2;
 
-
-
     private int multiShotLevel = 1;
+    
+    // Add vertical movement variable
+    protected int dy;
 
     private Rectangle bounds = new Rectangle(175,135,17,32);
 
@@ -56,14 +57,26 @@ public class Player extends Sprite {
     }
 
     public void act() {
+        // Update position based on dx and dy
         x += dx;
+        y += dy;
 
+        // Boundary checks
         if (x <= 2) {
             x = 2;
         }
 
         if (x >= BOARD_WIDTH - 2 * width) {
             x = BOARD_WIDTH - 2 * width;
+        }
+        
+        // Add vertical boundary checks
+        if (y <= 2) {
+            y = 2;
+        }
+        
+        if (y >= BOARD_HEIGHT - 50) {
+            y = BOARD_HEIGHT - 50;
         }
     }
 
@@ -77,6 +90,15 @@ public class Player extends Sprite {
         if (key == KeyEvent.VK_RIGHT) {
             dx = currentSpeed;
         }
+        
+        // Add up/down movement
+        if (key == KeyEvent.VK_UP) {
+            dy = -currentSpeed;
+        }
+        
+        if (key == KeyEvent.VK_DOWN) {
+            dy = currentSpeed;
+        }
     }
 
     public void keyReleased(KeyEvent e) {
@@ -88,6 +110,15 @@ public class Player extends Sprite {
 
         if (key == KeyEvent.VK_RIGHT) {
             dx = 0;
+        }
+        
+        // Add up/down release handling
+        if (key == KeyEvent.VK_UP) {
+            dy = 0;
+        }
+        
+        if (key == KeyEvent.VK_DOWN) {
+            dy = 0;
         }
     }
 }
