@@ -2,12 +2,23 @@ package gdd.sprite;
 
 import static gdd.Global.*;
 import javax.swing.ImageIcon;
+import java.awt.*;
+import java.awt.image.BufferedImage;
 
 public class Shot extends Sprite {
 
     private static final int H_SPACE = 20;
     private static final int V_SPACE = 1;
+    private static final int FRAME_THRESHOLD = 5; // Adjust frame threshold as needed
 
+    private int clipNo = 0;
+
+    private int frame = 0;
+    private final Rectangle[] clips = new Rectangle[] {
+            new Rectangle(345*SCALE_FACTOR, 149*SCALE_FACTOR, 6*SCALE_FACTOR, 6*SCALE_FACTOR), // 0: shot frame 1
+            new Rectangle(336*SCALE_FACTOR, 144*SCALE_FACTOR, 8*SCALE_FACTOR, 16*SCALE_FACTOR),
+            new Rectangle(328*SCALE_FACTOR, 144*SCALE_FACTOR, 8*SCALE_FACTOR, 16*SCALE_FACTOR)
+    };
     public Shot() {
     }
 
@@ -22,6 +33,7 @@ public class Shot extends Sprite {
 
     @Override
     public void act() {
+
         if (velocityX != 0 || velocityY != 0) {
             // Use custom velocity for spread shots
             this.x += velocityX;
@@ -29,10 +41,26 @@ public class Shot extends Sprite {
         } else {
             this.x += 4;
         }
+
+        // Move the shot upward
+        y -= 2; // Adjust speed as needed
+
+        // Cycle through animation frames
+//        frame++;
+//        if (frame >= FRAME_THRESHOLD) {
+//            frame = 0; // Reset the frame counter
+//            clipNo = (clipNo + 1) % clips.length; // Cycle through all clips
+//        }
+
     }
 
     public Shot(int x, int y) {
 
+        initShot(x, y);
+    }
+
+    public Shot(int x, int y, int clipNo) {
+        this.setClipNo(clipNo);
         initShot(x, y);
     }
 
@@ -48,5 +76,30 @@ public class Shot extends Sprite {
 
         setX(x + H_SPACE);
         setY(y - V_SPACE);
+    }
+
+    @Override
+    public Image getImage() {
+        if (image == null) {
+            System.err.println("Image is null in Shot.getImage()");
+            return null;
+        }
+
+        if (clipNo < 0 || clipNo >= clips.length) {
+            System.err.println("Invalid clipNo: " + clipNo);
+            return image; // Return the full image as fallback
+        }
+
+        Rectangle bound = clips[clipNo];
+        BufferedImage bImage = toBufferedImage(image);
+        return bImage.getSubimage(bound.x, bound.y, bound.width, bound.height);
+    }
+
+    public int getClipNo() {
+        return clipNo;
+    }
+
+    public void setClipNo(int clipNo) {
+        this.clipNo = clipNo;
     }
 }

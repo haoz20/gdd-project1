@@ -33,6 +33,7 @@ public class SpeedUp extends PowerUp {
     public void upgrade(Player player) {
         if (speedUpCount < MAX_ACTIVATIONS) {
             player.setSpeed(player.getSpeed() + 4);
+            player.setSpeedLevel(player.getSpeedLevel() + 1);
             speedUpCount++;
             this.die();
         }
