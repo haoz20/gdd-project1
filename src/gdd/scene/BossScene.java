@@ -6,7 +6,7 @@ import static gdd.Global.*;
 import gdd.sprite.BossAlien;
 import gdd.sprite.BossAlien.Bomb;
 import gdd.sprite.Explosion;
-import gdd.sprite.Player;
+import gdd.sprite.HorizontalPlayer;
 import gdd.sprite.Shot;
 
 import java.awt.Color;
@@ -34,7 +34,7 @@ public class BossScene extends JPanel {
     private List<Explosion> explosions;
     private List<Shot> shots;
     private List<Bomb> bombs = new ArrayList<>();
-    private Player player;
+    private HorizontalPlayer player;
     private List<gdd.sprite.Alien1> smallAliens = new ArrayList<>();
     private List<Shot> enemyShots = new ArrayList<>();
 
@@ -112,7 +112,7 @@ public class BossScene extends JPanel {
         timer.start();
 
         gameInit();
-        initAudio();
+//        initAudio();
     }
 
     public void stop() {
@@ -134,21 +134,55 @@ public class BossScene extends JPanel {
         // Create the boss on the right side of the screen
         boss = new BossAlien(BOARD_WIDTH - 150, BOARD_HEIGHT / 2 - 50);
         // Create the player on the left side of the screen
-        player = new Player();
+        player = new HorizontalPlayer();
         player.setX(50); // Position player on the left side
         player.setY(BOARD_HEIGHT / 2); // Position player in the middle vertically
     }
 
     private void drawStars(Graphics g) {
-        // Draw simple random white stars, now scrolling horizontally
-        g.setColor(Color.WHITE);
-        int numStars = 100;
-        for (int i = 0; i < numStars; i++) {
-            int x = (int) ((Math.random() * BOARD_WIDTH + BOARD_WIDTH - (scrollOffset % BOARD_WIDTH)) % BOARD_WIDTH);
-            int y = (int) (Math.random() * BOARD_HEIGHT);
-            int size = 1 + (int) (Math.random() * 2);
-            g.fillRect(x, y, size, size);
+        // Draw horizontally scrolling starfield background (right to left)
+        int scrollOffset = (int) (frame * scrollSpeed) % BLOCKWIDTH;
+        int baseCol = (int) (frame * scrollSpeed) / BLOCKWIDTH;
+        int colsNeeded = (BOARD_WIDTH / BLOCKWIDTH) + 2; // +2 for smooth scrolling
+        int rowsNeeded = (BOARD_HEIGHT / BLOCKHEIGHT) + 2;
+
+        for (int screenRow = 0; screenRow < rowsNeeded; screenRow++) {
+            int mapRow = (screenRow) % MAP.length;
+            int y = (screenRow * BLOCKHEIGHT);
+            if (y > BOARD_HEIGHT || y < -BLOCKHEIGHT) {
+                continue;
+            }
+            for (int screenCol = 0; screenCol < colsNeeded; screenCol++) {
+                int mapCol = (baseCol + screenCol) % MAP[mapRow].length;
+                int x = BOARD_WIDTH - ((screenCol * BLOCKWIDTH) - scrollOffset);
+                if (MAP[mapRow][mapCol] == 1) {
+                    drawStarCluster(g, x, y, BLOCKWIDTH, BLOCKHEIGHT);
+                }
+            }
         }
+    }
+
+    private void drawStarCluster(Graphics g, int x, int y, int width, int height) {
+        // Set star color to white
+        g.setColor(Color.WHITE);
+
+        // Draw multiple stars in a cluster pattern
+        // Main star (larger)
+        int centerX = x + width / 2;
+        int centerY = y + height / 2;
+        g.fillOval(centerX - 2, centerY - 2, 4, 4);
+
+        // Smaller surrounding stars
+        g.fillOval(centerX - 15, centerY - 10, 2, 2);
+        g.fillOval(centerX + 12, centerY - 8, 2, 2);
+        g.fillOval(centerX - 8, centerY + 12, 2, 2);
+        g.fillOval(centerX + 10, centerY + 15, 2, 2);
+
+        // Tiny stars for more detail
+        g.fillOval(centerX - 20, centerY + 5, 1, 1);
+        g.fillOval(centerX + 18, centerY - 15, 1, 1);
+        g.fillOval(centerX - 5, centerY - 18, 1, 1);
+        g.fillOval(centerX + 8, centerY + 20, 1, 1);
     }
 
     private void drawBoss(Graphics g) {
