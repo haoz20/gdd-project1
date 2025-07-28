@@ -4,3 +4,4 @@
 gdd-space-invaders-project.iml
 out/
 *.iml
+**/.DS_Store
