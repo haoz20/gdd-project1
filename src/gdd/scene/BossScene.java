@@ -63,21 +63,8 @@ public class BossScene extends JPanel {
     private int attackCooldown = 0;
     private int phaseCounter = 0;
 
-    // Background star map pattern
-    private final int[][] MAP = {
-            { 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0 },
-            { 0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1 },
-            { 1, 0, 1, 0, 1, 0, 0, 1, 0, 0, 1, 0 },
-            { 0, 0, 0, 1, 0, 0, 1, 1, 0, 1, 0, 1 },
-            { 1, 1, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0 },
-            { 0, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 1 },
-            { 1, 0, 0, 1, 1, 0, 0, 1, 0, 0, 1, 0 },
-            { 0, 1, 0, 0, 0, 1, 0, 1, 1, 0, 0, 1 },
-            { 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0 },
-            { 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1 },
-            { 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0 },
-            { 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1 }
-    };
+    // Background star map pattern (loaded from CSV)
+    private int[][] MAP;
 
     private boolean inGame = true;
     private String message = "Game Over";
@@ -93,6 +80,29 @@ public class BossScene extends JPanel {
 
     public BossScene(Game game) {
         this.game = game;
+        loadMapFromCSV("src/boss_scene_starmap.csv");
+    }
+
+    // Loads the star map from a CSV file (e.g., src/spawn_enemy.csv)
+    private void loadMapFromCSV(String filePath) {
+        List<int[]> rows = new ArrayList<>();
+        try (java.io.BufferedReader br = new java.io.BufferedReader(new java.io.FileReader(filePath))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                // Ignore empty lines and comments
+                if (line.trim().isEmpty() || line.startsWith("#")) continue;
+                String[] tokens = line.split(",");
+                int[] row = new int[tokens.length];
+                for (int i = 0; i < tokens.length; i++) {
+                    row[i] = Integer.parseInt(tokens[i].trim());
+                }
+                rows.add(row);
+            }
+            MAP = rows.toArray(new int[rows.size()][]);
+        } catch (Exception e) {
+            System.err.println("Error loading star map from CSV: " + e.getMessage());
+            // Fallback: use a default map if loading fails
+        }
     }
 
     private void initAudio() {
@@ -200,7 +210,8 @@ public class BossScene extends JPanel {
             g.fillRect(healthBarX, healthBarY, healthBarWidth, healthBarHeight);
 
             g.setColor(new Color(128, 0, 255));
-            int currentHealthWidth = (int) ((boss.getHealth() / 50.0) * healthBarWidth);
+            int maxHealth = 400; // Should match BossAlien's max HP
+            int currentHealthWidth = (int) ((boss.getHealth() / (double)maxHealth) * healthBarWidth);
             g.fillRect(healthBarX, healthBarY, currentHealthWidth, healthBarHeight);
 
             g.setColor(Color.WHITE);
@@ -287,7 +298,7 @@ public class BossScene extends JPanel {
         g.setColor(Color.white);
         g.drawString("FRAME: " + frame, 10, 10);
         g.drawString("BOSS FIGHT", 10, 25);
-        g.drawString("BOSS HP: " + boss.getHealth() + "/50", 10, 40);
+        g.drawString("BOSS HP: " + boss.getHealth() + "/400", 10, 40);
 
         g.setColor(Color.green);
 
@@ -330,9 +341,10 @@ public class BossScene extends JPanel {
     }
 
     private void update() {
+        // Increment horizontal scroll offset
         scrollOffset += scrollSpeed;
 
-        // Player movement
+        // Update player position
         if (player.isVisible()) {
             player.act();
         }
@@ -464,31 +476,24 @@ public class BossScene extends JPanel {
 
     private void updateBossMovement() {
         if (boss.isVisible()) {
-            if (bossMovementCounter % 30 == 0) {
-                bossVerticalDirection = bossMovementRandom.nextInt(3) - 1;
-                bossHorizontalDirection = bossMovementRandom.nextInt(3) - 1;
+            boss.act(0, player.getY());
+            // Check collision with player
+            int bossX = boss.getX();
+            int bossY = boss.getY();
+            int bossW = boss.getImage().getWidth(null);
+            int bossH = boss.getImage().getHeight(null);
+            int playerX = player.getX();
+            int playerY = player.getY();
+            int playerW = player.getImage().getWidth(null);
+            int playerH = player.getImage().getHeight(null);
+            if (player.isVisible() &&
+                bossX < playerX + playerW && bossX + bossW > playerX &&
+                bossY < playerY + playerH && bossY + bossH > playerY) {
+                var ii = new ImageIcon(IMG_EXPLOSION);
+                player.setImage(ii.getImage());
+                player.setDying(true);
+                inGame = false;
             }
-            bossMovementCounter++;
-
-            int newBossY = boss.getY() + (bossVerticalDirection * 3);
-            int newBossX = boss.getX() + (bossHorizontalDirection * 2) - (int) scrollSpeed;
-
-            if (newBossY > 10 && newBossY < BOARD_HEIGHT - boss.getImage().getHeight(null) - 10) {
-                boss.setY(newBossY);
-            } else {
-                bossVerticalDirection *= -1;
-                boss.setY(Math.max(10, Math.min(BOARD_HEIGHT - boss.getImage().getHeight(null) - 10, newBossY)));
-            }
-
-            if (newBossX > BOARD_WIDTH - 200 && newBossX < BOARD_WIDTH - 50) {
-                boss.setX(newBossX);
-            } else {
-                if (newBossX <= BOARD_WIDTH - 200)
-                    boss.setX(BOARD_WIDTH - 199);
-                if (newBossX >= BOARD_WIDTH - 50)
-                    boss.setX(BOARD_WIDTH - 51);
-            }
-
             // Boss spawns small aliens occasionally
             if (randomizer.nextInt(120) == 0) {
                 gdd.sprite.Alien1 newAlien = new gdd.sprite.Alien1(boss.getX() + boss.getImage().getWidth(null) / 2,
@@ -514,6 +519,9 @@ public class BossScene extends JPanel {
                     alienVerticalDirections.put(alien, verticalDir);
                 }
 
+                // Animate alien (advance animation frame)
+                alien.act(verticalDir);
+
                 int newAlienY = alien.getY() + (verticalDir * 2);
                 if (newAlienY > 0 && newAlienY < BOARD_HEIGHT - 30) {
                     alien.setY(newAlienY);
@@ -532,8 +540,17 @@ public class BossScene extends JPanel {
                         int bombY = alien.getY() + alien.getImage().getHeight(null);
                         alienBomb.setX(bombX);
                         alienBomb.setY(bombY);
+                        alienBomb.setHorizontalMovement(true); // BossScene: move horizontally
                         enemyBombs.add(alienBomb);
                     }
+                }
+
+                // Check collision with player
+                if (player.isVisible() && checkAlienCollision(alien, player)) {
+                    var ii = new ImageIcon(IMG_EXPLOSION);
+                    player.setImage(ii.getImage());
+                    player.setDying(true);
+                    inGame = false;
                 }
 
                 if (alien.getX() < -30 || alien.getY() > BOARD_HEIGHT) {
@@ -568,6 +585,7 @@ public class BossScene extends JPanel {
                     int bossY = boss.getY();
 
                     explosions.add(new Explosion(shot.getX(), shot.getY()));
+                    AudioPlayer.playExplosionSound();
                     boss.decreaseHealth();
 
                     if (boss.getHealth() <= 0) {
@@ -587,6 +605,7 @@ public class BossScene extends JPanel {
                 for (gdd.sprite.Alien1 alien : smallAliens) {
                     if (alien.isVisible() && shot.collidesWith(alien)) {
                         explosions.add(new Explosion(shot.getX(), shot.getY()));
+                        AudioPlayer.playExplosionSound();
                         alien.die();
                         shot.die();
                         shotsToRemove.add(shot);
@@ -690,6 +709,24 @@ public class BossScene extends JPanel {
                bombY + bombHeight > playerY;
     }
 
+    // Helper method for proper alien collision detection
+    private boolean checkAlienCollision(gdd.sprite.Alien1 alien, HorizontalPlayer player) {
+        int alienX = alien.getX();
+        int alienY = alien.getY();
+        int alienWidth = alien.getImage().getWidth(null);
+        int alienHeight = alien.getImage().getHeight(null);
+
+        int playerX = player.getX();
+        int playerY = player.getY();
+        int playerWidth = player.getImage().getWidth(null);
+        int playerHeight = player.getImage().getHeight(null);
+
+        return alienX < playerX + playerWidth &&
+               alienX + alienWidth > playerX &&
+               alienY < playerY + playerHeight &&
+               alienY + alienHeight > playerY;
+    }
+
     private void doGameCycle() {
         frame++;
         update();
@@ -716,13 +753,16 @@ public class BossScene extends JPanel {
             player.keyPressed(e);
 
             int key = e.getKeyCode();
-
             if (key == KeyEvent.VK_SPACE && inGame) {
                 System.out.println("Shots: " + shots.size());
                 if (shots.size() < 4) { // Limit shots for boss scene
                     int x = player.getX() + 24; // Adjust for HorizontalPlayer width
                     int y = player.getY() + 8; // Center vertically
-                    shots.add(new Shot(x, y));
+                    shots.add(new Shot(x, y- 30));
+                    shots.add(new Shot(x, y- 10));
+                    shots.add(new Shot(x, y+ 10));
+                    shots.add(new Shot(x, y+ 30));
+                    AudioPlayer.playShootSound(); // Play shot sound
                 }
             }
         }

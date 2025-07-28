@@ -8,8 +8,7 @@ import java.util.Random;
 
 public class BossAlien extends Enemy {
 
-    private Bomb bomb;
-    private int health = 50; // Boss has more health than regular enemies
+    private int health = 400; // Increased HP for longer boss fight
     private int moveDirection = 1;
     private int moveDirectionY = 1;
     private int moveCounter = 0;
@@ -24,19 +23,17 @@ public class BossAlien extends Enemy {
         this.x = x;
         this.y = y;
 
-        bomb = new Bomb(x, y);
 
         // Use the dedicated boss sprite
         var ii = new ImageIcon(IMG_BOSS);
         setImage(ii.getImage());
     }
 
-    @Override
-    public void act(int direction) {
-        // Boss has a more complex movement pattern
+
+    public void act(int direction, int playerY) {
+        // Boss moves horizontally as before
         if (moveCounter % 30 == 0) {
             moveDirection = random.nextInt(3) - 1; // -1, 0, or 1 (left, stay, right)
-            moveDirectionY = random.nextInt(3) - 1; // -1, 0, or 1 (up, stay, down)
         }
 
         x += moveDirection * 3; // Move horizontally
@@ -56,17 +53,15 @@ public class BossAlien extends Enemy {
         int maxY = BOARD_HEIGHT / 2 - getImage().getHeight(null);
         if (y < minY) {
             y = minY;
-            moveDirectionY = 1;
         } else if (y > maxY) {
             y = maxY;
-            moveDirectionY = -1;
         }
 
         moveCounter++;
     }
 
     public Bomb getBomb() {
-        return bomb;
+        return new Bomb(this.x, this.y);
     }
 
     public int getHealth() {

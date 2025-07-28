@@ -1,6 +1,7 @@
 package gdd.sprite;
 
 import static gdd.Global.*;
+
 import javax.swing.ImageIcon;
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -11,7 +12,7 @@ public class Alien1 extends Enemy {
     private int clipNo = 0;
     private int frameCounter = 0;
     private static final int FRAME_THRESHOLD = 10;
-    private final Rectangle[] clips = new Rectangle[] {
+    private final Rectangle[] clips = new Rectangle[]{
             new Rectangle(766, 167, 50, 38),
             new Rectangle(851, 167, 50, 38)
     };
@@ -39,7 +40,7 @@ public class Alien1 extends Enemy {
     }
 
     public void act(int direction) {
-        this.y ++;
+        this.y++;
 
         frameCounter++;
         if (frameCounter >= FRAME_THRESHOLD) {
@@ -73,13 +74,18 @@ public class Alien1 extends Enemy {
     public class Bomb extends Sprite {
 
         private boolean destroyed;
+        private boolean horizontalMovement = false;
         private int frameNo = 0;
         private int frame = 5;
         private int clipNo = 0;
-        private Rectangle[] clips = new Rectangle[] {
+        private Rectangle[] clips = new Rectangle[]{
                 new Rectangle(620, 390, 5, 12),
-                new Rectangle(628 , 390, 5, 12)
+                new Rectangle(628, 390, 5, 12)
         };
+
+        public void setHorizontalMovement(boolean horizontal) {
+            this.horizontalMovement = horizontal;
+        }
 
         public Bomb(int x, int y) {
 
@@ -110,7 +116,6 @@ public class Alien1 extends Enemy {
 
             return destroyed;
         }
-
         @Override
         public Image getImage() {
             Rectangle bound = clips[clipNo];
@@ -130,15 +135,18 @@ public class Alien1 extends Enemy {
 
         @Override
         public void act() {
-            this.y += 2; // Bomb falls down
-
+            if (horizontalMovement) {
+                this.x -= 4; // Move left for BossScene
+            } else {
+                this.y += 2; // Move down for Scene1
+            }
 
             frameNo++;
             if (frameNo >= frame) {
                 frameNo = 0; // Reset the counter
                 clipNo = (clipNo == 0) ? 1 : 0; // Alternate between clip0 and clip1
-            }
 
+            }
         }
     }
 }

@@ -60,6 +60,7 @@ public class Scene1 extends JPanel {
 
     private boolean inGame = true;
     private String message = "Game Over";
+    private boolean stageClear = false;
 
     private final Dimension d = new Dimension(BOARD_WIDTH, BOARD_HEIGHT);
     private final Random randomizer = new Random();
@@ -70,32 +71,7 @@ public class Scene1 extends JPanel {
     private int currentRow = -1;
     // TODO load this map from a file
     private int mapOffset = 0;
-    private final int[][] MAP = {
-            { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-            { 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-            { 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-            { 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0 },
-            { 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0 },
-            { 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0 },
-            { 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0 },
-            { 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0 },
-            { 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0 },
-            { 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0 },
-            { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0 },
-            { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 },
-            { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-            { 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-            { 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-            { 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0 },
-            { 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0 },
-            { 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0 },
-            { 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0 },
-            { 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0 },
-            { 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0 },
-            { 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0 },
-            { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0 },
-            { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 }
-    };
+    private int[][] MAP;
 
     private HashMap<Integer, SpawnDetails> spawnMap = new HashMap<>();
     private AudioPlayer audioPlayer;
@@ -107,6 +83,30 @@ public class Scene1 extends JPanel {
         // initBoard();
         // gameInit();
         loadSpawnDetails();
+        loadMapFromCSV("src/spawn_enemy.csv");
+    }
+
+    // Loads the star map from a CSV file (e.g., src/spawn_enemy.csv)
+    private void loadMapFromCSV(String filePath) {
+        List<int[]> rows = new ArrayList<>();
+        try (BufferedReader br = new BufferedReader(new FileReader("src/starmap.csv"))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                // Ignore empty lines and comments
+                if (line.trim().isEmpty() || line.startsWith("#")) continue;
+                String[] tokens = line.split(",");
+                int[] row = new int[tokens.length];
+                for (int i = 0; i < tokens.length; i++) {
+                    row[i] = Integer.parseInt(tokens[i].trim());
+                }
+                rows.add(row);
+            }
+            MAP = rows.toArray(new int[rows.size()][]);
+        } catch (IOException e) {
+            System.err.println("Error loading star map from CSV: " + e.getMessage());
+            // Fallback: use a default map if loading fails
+            
+        }
     }
 
     private void initAudio() {
@@ -424,7 +424,8 @@ public class Scene1 extends JPanel {
 
         g.setColor(Color.white);
         g.setFont(small);
-        g.drawString(message, (BOARD_WIDTH - fontMetrics.stringWidth(message)) / 2,
+        String displayMsg = stageClear ? "Stage Clear!" : message;
+        g.drawString(displayMsg, (BOARD_WIDTH - fontMetrics.stringWidth(displayMsg)) / 2,
                 BOARD_WIDTH / 2);
     }
 
@@ -463,6 +464,15 @@ public class Scene1 extends JPanel {
         if (deaths == NUMBER_OF_ALIENS_TO_DESTROY) {
             inGame = false;
             timer.stop();
+            stageClear = true;
+            repaint();
+            // After 2 seconds, load boss scene
+            new javax.swing.Timer(2000, new java.awt.event.ActionListener() {
+                @Override
+                public void actionPerformed(java.awt.event.ActionEvent e) {
+                    game.loadBossScene();
+                }
+            }) {{ setRepeats(false); }}.start();
             message = "Game won!";
         }
 
@@ -543,6 +553,7 @@ public class Scene1 extends JPanel {
                         enemy.setImage(ii.getImage());
                         enemy.setDying(true);
                         explosions.add(new Explosion(enemyX, enemyY));
+                        AudioPlayer.playExplosionSound();
                         deaths++;
                         shot.die();
                         shotsToRemove.add(shot);
@@ -741,18 +752,22 @@ public class Scene1 extends JPanel {
 
                     if (player.getMultiShotLevel() == 1) {
                         shots.add(new Shot(x, y, clipNo));
+                        AudioPlayer.playShootSound();
                     } else if (player.getMultiShotLevel() == 2) {
                         shots.add(new Shot(x - 10, y, clipNo));
                         shots.add(new Shot(x + 10, y, clipNo));
+                        AudioPlayer.playShootSound();
                     } else if (player.getMultiShotLevel() == 3) {
                         shots.add(new Shot(x - 20, y, clipNo));
                         shots.add(new Shot(x, y, clipNo));
                         shots.add(new Shot(x + 20, y, clipNo));
+                        AudioPlayer.playShootSound();
                     } else if (player.getMultiShotLevel() == 4) {
                         shots.add(new Shot(x - 30, y, clipNo));
                         shots.add(new Shot(x - 10, y, clipNo));
                         shots.add(new Shot(x + 10, y, clipNo));
                         shots.add(new Shot(x + 30, y, clipNo));
+                        AudioPlayer.playShootSound();
                     }
 
                 }
