@@ -57,7 +57,7 @@ public class Game extends JFrame {
     public void loadBossScene() {
         getContentPane().removeAll();
         add(bossScene);
-        titleScene.stop();
+        scene1.stop(); // Fix: Change from titleScene.stop() to scene1.stop()
         bossScene.start();
         revalidate();
         repaint();
