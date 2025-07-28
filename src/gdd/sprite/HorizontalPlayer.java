@@ -12,11 +12,11 @@ public class HorizontalPlayer extends Player {
     private static final int START_Y = 540;
     private static final int LOCAL_WIDTH = 24 * SCALE_FACTOR;
     private static final int LOCAL_HEIGHT = 32 * SCALE_FACTOR;
+    private static final int HORIZONTAL_SPEED = 16; // Fixed speed for horizontal movement
+    
     private static final String STILL = "still";
     private static final String UP = "up";
     private static final String DOWN = "down";
-    private static final String LEFT = "left";
-    private static final String RIGHT = "right";
     private String action = STILL;
 
     private int clipNo = 0;
@@ -29,8 +29,6 @@ public class HorizontalPlayer extends Player {
 
     private int frameCounter = 0;
     private final int FRAME_THRESHOLD = 10;
-
-    private int maxSpeed = 8; // Default, can be set from Scene1
 
     public HorizontalPlayer() {
         super();
@@ -47,10 +45,6 @@ public class HorizontalPlayer extends Player {
         setY(START_Y);
     }
 
-    public void setMaxSpeed(int maxSpeed) {
-        this.maxSpeed = maxSpeed;
-    }
-
     @Override
     public Image getImage() {
         Rectangle bound = clips[clipNo];
@@ -60,14 +54,9 @@ public class HorizontalPlayer extends Player {
 
     @Override
     public void act() {
-        // Clamp dx and dy to maxSpeed
-        if (dx > maxSpeed) dx = maxSpeed;
-        if (dx < -maxSpeed) dx = -maxSpeed;
-        if (dy > maxSpeed) dy = maxSpeed;
-        if (dy < -maxSpeed) dy = -maxSpeed;
-
         x += dx;
         y += dy;
+        
         // Horizontal bounds
         if (x <= 2) x = 2;
         if (x >= BOARD_WIDTH - LOCAL_WIDTH) x = BOARD_WIDTH - LOCAL_WIDTH;
@@ -89,12 +78,6 @@ public class HorizontalPlayer extends Player {
             case DOWN:
                 clipNo = 3;
                 break;
-            case LEFT:
-                // You can add a left animation if you want
-                break;
-            case RIGHT:
-                // You can add a right animation if you want
-                break;
         }
     }
 
@@ -103,16 +86,14 @@ public class HorizontalPlayer extends Player {
         int key = e.getKeyCode();
         if (key == KeyEvent.VK_UP) {
             action = UP;
-            dy = -getSpeed();
+            dy = -HORIZONTAL_SPEED;
         } else if (key == KeyEvent.VK_DOWN) {
             action = DOWN;
-            dy = getSpeed();
+            dy = HORIZONTAL_SPEED;
         } else if (key == KeyEvent.VK_LEFT) {
-            action = LEFT;
-            dx = -getSpeed();
+            dx = -HORIZONTAL_SPEED;
         } else if (key == KeyEvent.VK_RIGHT) {
-            action = RIGHT;
-            dx = getSpeed();
+            dx = HORIZONTAL_SPEED;
         }
     }
 
