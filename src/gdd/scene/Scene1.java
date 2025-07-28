@@ -171,7 +171,7 @@ public class Scene1 extends JPanel {
         timer.start();
 
         gameInit();
-//        initAudio();
+        initAudio(); // Uncomment this line (remove the // at the beginning)
     }
 
     public void stop() {

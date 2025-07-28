@@ -109,9 +109,10 @@ public class BossScene extends JPanel {
         }
     }
 
+    // Background music
     private void initAudio() {
         try {
-            String filePath = "src/audio/scene1.wav";
+            String filePath = "src/audio/bossScene.wav";
             audioPlayer = new AudioPlayer(filePath);
             audioPlayer.play();
         } catch (Exception e) {
@@ -129,7 +130,7 @@ public class BossScene extends JPanel {
         timer.start();
 
         gameInit();
-        // initAudio();
+        initAudio(); // background music
     }
 
     public void stop() {
