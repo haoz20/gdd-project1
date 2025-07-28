@@ -14,7 +14,6 @@ public class BossAlien extends Enemy {
     private int moveCounter = 0;
     private int shootTimer = 0; // Add shooting timer
     private Random random = new Random();
-    private Bomb bomb; // Boss-specific bomb
 
     private Rectangle bossBounds = new Rectangle(4, 4, 120, 111); // Define bounds for boss movement
 
@@ -26,8 +25,6 @@ public class BossAlien extends Enemy {
     private void initBoss(int x, int y) {
         this.x = x;
         this.y = y;
-        bomb = new Bomb(x, y);
-
         // Use the dedicated boss sprite
         var ii = new ImageIcon(IMG_BOSS);
         setImage(ii.getImage());
@@ -116,7 +113,8 @@ public class BossAlien extends Enemy {
     }
 
     public Bomb getBomb() {
-        return bomb; // Return the boss-specific bomb
+        // Always return a new Bomb instance
+        return new Bomb(this.x, this.y);
     }
 
     public int getHealth() {
@@ -156,6 +154,11 @@ public class BossAlien extends Enemy {
             var bombImg = "src/images/finalBoss.png";
             var ii = new ImageIcon(bombImg);
             setImage(ii.getImage());
+        }
+
+        public void setVelocity(int vx, int vy) {
+            this.velocityX = vx;
+            this.velocityY = vy;
         }
 
         @Override

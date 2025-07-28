@@ -487,6 +487,22 @@ public class BossScene extends JPanel {
                 // player.getY() + player.getImage().getHeight(null) / 2);
                 // enemyShots.add(bossShot);
                 BossAlien.Bomb bomb = boss.getBomb();
+                int bombX = boss.getX();
+                int bombY = boss.getY() + boss.getImage().getHeight(null) / 2;
+                int playerX = player.getX() + player.getImage().getWidth(null) / 2;
+                int playerY = player.getY() + player.getImage().getHeight(null) / 2;
+
+                double deltaX = playerX - bombX;
+                double deltaY = playerY - bombY;
+                double distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+                double speed = 4.0; // Bomb speed
+
+                int velocityX = (int) Math.round((deltaX / distance) * speed);
+                int velocityY = (int) Math.round((deltaY / distance) * speed);
+
+                bomb.setVelocity(velocityX, velocityY);
+                bomb.setX(bombX);
+                bomb.setY(bombY);
                 bombs.add(bomb);
             }
 
