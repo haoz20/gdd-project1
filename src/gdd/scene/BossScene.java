@@ -216,18 +216,12 @@ public class BossScene extends JPanel {
             g.fillRect(healthBarX, healthBarY, healthBarWidth, healthBarHeight);
 
             g.setColor(new Color(128, 0, 255));
-            int maxHealth = 400; // Should match BossAlien's max HP
+            int maxHealth = 300; // Changed from 400 to 300 to match BossAlien's actual HP
             int currentHealthWidth = (int) ((boss.getHealth() / (double) maxHealth) * healthBarWidth);
             g.fillRect(healthBarX, healthBarY, currentHealthWidth, healthBarHeight);
 
             g.setColor(Color.WHITE);
             g.drawRect(healthBarX, healthBarY, healthBarWidth, healthBarHeight);
-        }
-
-        if (boss.isDying()) {
-            boss.die();
-            playerWon = true;
-            inGame = false;
         }
     }
 
@@ -304,7 +298,7 @@ public class BossScene extends JPanel {
         g.setColor(Color.white);
         g.drawString("FRAME: " + frame, 10, 10);
         g.drawString("BOSS FIGHT", 10, 25);
-        g.drawString("BOSS HP: " + boss.getHealth() + "/400", 10, 40);
+        g.drawString("BOSS HP: " + boss.getHealth() + "/300", 10, 40); // Changed from /400 to /300
 
         g.setColor(Color.green);
 
@@ -800,10 +794,10 @@ public class BossScene extends JPanel {
                 if (shots.size() < 4) { // Limit shots for boss scene
                     int x = player.getX() + 24; // Adjust for HorizontalPlayer width
                     int y = player.getY() + 8; // Center vertically
-                    shots.add(new Shot(x, y - 30));
-                    shots.add(new Shot(x, y - 10));
-                    shots.add(new Shot(x, y + 10));
-                    shots.add(new Shot(x, y + 30));
+                    shots.add(new Shot(x, y - 30, 0)); // Use clipNo = 2 for larger bullets
+                    shots.add(new Shot(x, y - 10, 0)); // Use clipNo = 2 for larger bullets
+                    shots.add(new Shot(x, y + 10, 0)); // Use clipNo = 2 for larger bullets
+                    shots.add(new Shot(x, y + 30, 0)); // Use clipNo = 2 for larger bullets
                     AudioPlayer.playShootSound(); // Play shot sound
                 }
             }
