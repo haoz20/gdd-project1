@@ -5,6 +5,8 @@ import gdd.Game;
 import static gdd.Global.*;
 
 import gdd.sprite.Alien1;
+import gdd.sprite.Alien2;
+import gdd.sprite.Alien2.Bomb2;
 import gdd.sprite.BossAlien;
 import gdd.sprite.BossAlien.Bomb;
 import gdd.sprite.Explosion;
@@ -37,8 +39,9 @@ public class BossScene extends JPanel {
     private List<Shot> shots;
     private List<Bomb> bombs = new ArrayList<>();
     private List<Alien1.Bomb> enemyBombs = new ArrayList<>();
+    private List<Bomb2> enemyBombs2 = new ArrayList<>(); // Add this line
     private HorizontalPlayer player;
-    private List<gdd.sprite.Alien1> smallAliens = new ArrayList<>();
+    private List<gdd.sprite.Enemy> smallAliens = new ArrayList<>();
     private List<Shot> enemyShots = new ArrayList<>();
 
     // Map variables for scrolling background
@@ -55,7 +58,7 @@ public class BossScene extends JPanel {
     private Random bossMovementRandom = new Random();
 
     // Small alien movement variables
-    private Map<gdd.sprite.Alien1, Integer> alienVerticalDirections = new HashMap<>();
+    private Map<gdd.sprite.Enemy, Integer> alienVerticalDirections = new HashMap<>();
 
     // Boss attack pattern variables
     private int bossAttackPhase = 0;
@@ -90,7 +93,8 @@ public class BossScene extends JPanel {
             String line;
             while ((line = br.readLine()) != null) {
                 // Ignore empty lines and comments
-                if (line.trim().isEmpty() || line.startsWith("#")) continue;
+                if (line.trim().isEmpty() || line.startsWith("#"))
+                    continue;
                 String[] tokens = line.split(",");
                 int[] row = new int[tokens.length];
                 for (int i = 0; i < tokens.length; i++) {
@@ -145,6 +149,8 @@ public class BossScene extends JPanel {
         smallAliens = new ArrayList<>();
         enemyShots = new ArrayList<>();
         bombs = new ArrayList<>();
+        enemyBombs = new ArrayList<>(); // Add this line
+        enemyBombs2 = new ArrayList<>(); // Add this line
 
         // Create the boss on the right side of the screen
         boss = new BossAlien(BOARD_WIDTH - 150, BOARD_HEIGHT / 2 - 50);
@@ -211,7 +217,7 @@ public class BossScene extends JPanel {
 
             g.setColor(new Color(128, 0, 255));
             int maxHealth = 400; // Should match BossAlien's max HP
-            int currentHealthWidth = (int) ((boss.getHealth() / (double)maxHealth) * healthBarWidth);
+            int currentHealthWidth = (int) ((boss.getHealth() / (double) maxHealth) * healthBarWidth);
             g.fillRect(healthBarX, healthBarY, currentHealthWidth, healthBarHeight);
 
             g.setColor(Color.WHITE);
@@ -226,7 +232,7 @@ public class BossScene extends JPanel {
     }
 
     private void drawSmallAliens(Graphics g) {
-        for (gdd.sprite.Alien1 alien : smallAliens) {
+        for (gdd.sprite.Enemy alien : smallAliens) {
             if (alien.isVisible()) {
                 g.drawImage(alien.getImage(), alien.getX(), alien.getY(), this);
             }
@@ -311,6 +317,7 @@ public class BossScene extends JPanel {
             drawShot(g);
             drawBombing(g);
             drawEnemyShots(g);
+            drawEnemyBombs(g); // Add this line
         } else {
             if (timer.isRunning()) {
                 timer.stop();
@@ -362,6 +369,7 @@ public class BossScene extends JPanel {
 
         // Update bombs
         updateBombs();
+        updateEnemyBombs();
 
         // Check win condition
         if (boss.getHealth() <= 0 && !boss.isDying()) {
@@ -477,6 +485,14 @@ public class BossScene extends JPanel {
     private void updateBossMovement() {
         if (boss.isVisible()) {
             boss.act(0, player.getY());
+
+            // Add boss shooting
+            if (boss.shouldShoot()) {
+                Shot bossShot = boss.getShot(player.getX() + player.getImage().getWidth(null) / 2,
+                        player.getY() + player.getImage().getHeight(null) / 2);
+                enemyShots.add(bossShot);
+            }
+
             // Check collision with player
             int bossX = boss.getX();
             int bossY = boss.getY();
@@ -487,8 +503,8 @@ public class BossScene extends JPanel {
             int playerW = player.getImage().getWidth(null);
             int playerH = player.getImage().getHeight(null);
             if (player.isVisible() &&
-                bossX < playerX + playerW && bossX + bossW > playerX &&
-                bossY < playerY + playerH && bossY + bossH > playerY) {
+                    bossX < playerX + playerW && bossX + bossW > playerX &&
+                    bossY < playerY + playerH && bossY + bossH > playerY) {
                 var ii = new ImageIcon(IMG_EXPLOSION);
                 player.setImage(ii.getImage());
                 player.setDying(true);
@@ -496,8 +512,17 @@ public class BossScene extends JPanel {
             }
             // Boss spawns small aliens occasionally
             if (randomizer.nextInt(120) == 0) {
-                gdd.sprite.Alien1 newAlien = new gdd.sprite.Alien1(boss.getX() + boss.getImage().getWidth(null) / 2,
-                        boss.getY() + boss.getImage().getHeight(null));
+                gdd.sprite.Enemy newAlien;
+
+                // Randomly choose between Alien1 and Alien2 (50% chance each)
+                if (randomizer.nextBoolean()) {
+                    newAlien = new gdd.sprite.Alien1(boss.getX() + boss.getImage().getWidth(null) / 2,
+                            boss.getY() + boss.getImage().getHeight(null));
+                } else {
+                    newAlien = new gdd.sprite.Alien2(boss.getX() + boss.getImage().getWidth(null) / 2,
+                            boss.getY() + boss.getImage().getHeight(null));
+                }
+
                 smallAliens.add(newAlien);
                 alienVerticalDirections.put(newAlien, bossMovementRandom.nextInt(3) - 1);
             }
@@ -505,8 +530,8 @@ public class BossScene extends JPanel {
     }
 
     private void updateSmallAliens() {
-        List<gdd.sprite.Alien1> aliensToRemove = new ArrayList<>();
-        for (gdd.sprite.Alien1 alien : smallAliens) {
+        List<gdd.sprite.Enemy> aliensToRemove = new ArrayList<>();
+        for (gdd.sprite.Enemy alien : smallAliens) {
             if (alien.isVisible()) {
                 Integer verticalDir = alienVerticalDirections.get(alien);
                 if (verticalDir == null) {
@@ -529,19 +554,36 @@ public class BossScene extends JPanel {
 
                 alien.setX(alien.getX() - (int) scrollSpeed);
 
-                // Small aliens drop bombs instead of shots
+                // Handle bomb dropping for different alien types
                 if (randomizer.nextInt(180) == 0) {
-                    Alien1.Bomb alienBomb = alien.getBomb();
-                    if (alienBomb.isDestroyed()) {
-                        alienBomb.setDestroyed(false);
-                        int alienWidth = alien.getImage().getWidth(null);
-                        int bombWidth = alienBomb.getImage().getWidth(null);
-                        int bombX = alien.getX() + (alienWidth / 2) - (bombWidth / 2);
-                        int bombY = alien.getY() + alien.getImage().getHeight(null);
-                        alienBomb.setX(bombX);
-                        alienBomb.setY(bombY);
-                        alienBomb.setHorizontalMovement(true); // BossScene: move horizontally
-                        enemyBombs.add(alienBomb);
+                    if (alien instanceof gdd.sprite.Alien1) {
+                        gdd.sprite.Alien1 alien1 = (gdd.sprite.Alien1) alien;
+                        Alien1.Bomb alienBomb = alien1.getBomb();
+                        if (alienBomb.isDestroyed()) {
+                            alienBomb.setDestroyed(false);
+                            int alienWidth = alien.getImage().getWidth(null);
+                            int bombWidth = alienBomb.getImage().getWidth(null);
+                            int bombX = alien.getX() + (alienWidth / 2) - (bombWidth / 2);
+                            int bombY = alien.getY() + alien.getImage().getHeight(null);
+                            alienBomb.setX(bombX);
+                            alienBomb.setY(bombY);
+                            alienBomb.setHorizontalMovement(true);
+                            enemyBombs.add(alienBomb);
+                        }
+                    } else if (alien instanceof gdd.sprite.Alien2) {
+                        gdd.sprite.Alien2 alien2 = (gdd.sprite.Alien2) alien;
+                        Bomb2 alienBomb2 = alien2.getBomb();
+                        if (alienBomb2.isDestroyed()) {
+                            alienBomb2.setDestroyed(false);
+                            int alienWidth = alien.getImage().getWidth(null);
+                            int bombWidth = alienBomb2.getImage().getWidth(null);
+                            int bombX = alien.getX() + (alienWidth / 2) - (bombWidth / 2);
+                            int bombY = alien.getY() + alien.getImage().getHeight(null);
+                            alienBomb2.setX(bombX);
+                            alienBomb2.setY(bombY);
+                            alienBomb2.setHorizontalMovement(true); // Add this line
+                            enemyBombs2.add(alienBomb2);
+                        }
                     }
                 }
 
@@ -602,7 +644,7 @@ public class BossScene extends JPanel {
 
                 // Check collision with small aliens
                 boolean hitAlien = false;
-                for (gdd.sprite.Alien1 alien : smallAliens) {
+                for (gdd.sprite.Enemy alien : smallAliens) {
                     if (alien.isVisible() && shot.collidesWith(alien)) {
                         explosions.add(new Explosion(shot.getX(), shot.getY()));
                         AudioPlayer.playExplosionSound();
@@ -686,9 +728,9 @@ public class BossScene extends JPanel {
         int playerHeight = player.getImage().getHeight(null);
 
         return shotX < playerX + playerWidth &&
-               shotX + shotWidth > playerX &&
-               shotY < playerY + playerHeight &&
-               shotY + shotHeight > playerY;
+                shotX + shotWidth > playerX &&
+                shotY < playerY + playerHeight &&
+                shotY + shotHeight > playerY;
     }
 
     // Helper method for proper bomb collision detection
@@ -704,13 +746,13 @@ public class BossScene extends JPanel {
         int playerHeight = player.getImage().getHeight(null);
 
         return bombX < playerX + playerWidth &&
-               bombX + bombWidth > playerX &&
-               bombY < playerY + playerHeight &&
-               bombY + bombHeight > playerY;
+                bombX + bombWidth > playerX &&
+                bombY < playerY + playerHeight &&
+                bombY + bombHeight > playerY;
     }
 
     // Helper method for proper alien collision detection
-    private boolean checkAlienCollision(gdd.sprite.Alien1 alien, HorizontalPlayer player) {
+    private boolean checkAlienCollision(gdd.sprite.Enemy alien, HorizontalPlayer player) {
         int alienX = alien.getX();
         int alienY = alien.getY();
         int alienWidth = alien.getImage().getWidth(null);
@@ -722,9 +764,9 @@ public class BossScene extends JPanel {
         int playerHeight = player.getImage().getHeight(null);
 
         return alienX < playerX + playerWidth &&
-               alienX + alienWidth > playerX &&
-               alienY < playerY + playerHeight &&
-               alienY + alienHeight > playerY;
+                alienX + alienWidth > playerX &&
+                alienY < playerY + playerHeight &&
+                alienY + alienHeight > playerY;
     }
 
     private void doGameCycle() {
@@ -758,13 +800,120 @@ public class BossScene extends JPanel {
                 if (shots.size() < 4) { // Limit shots for boss scene
                     int x = player.getX() + 24; // Adjust for HorizontalPlayer width
                     int y = player.getY() + 8; // Center vertically
-                    shots.add(new Shot(x, y- 30));
-                    shots.add(new Shot(x, y- 10));
-                    shots.add(new Shot(x, y+ 10));
-                    shots.add(new Shot(x, y+ 30));
+                    shots.add(new Shot(x, y - 30));
+                    shots.add(new Shot(x, y - 10));
+                    shots.add(new Shot(x, y + 10));
+                    shots.add(new Shot(x, y + 30));
                     AudioPlayer.playShootSound(); // Play shot sound
                 }
             }
         }
     }
-}
+
+    // Move all these methods inside the BossScene class
+    private void updateEnemyBombs() {
+        // Handle Alien1 bombs
+        List<Alien1.Bomb> enemyBombsToRemove = new ArrayList<>();
+        for (Alien1.Bomb bomb : enemyBombs) {
+            if (!bomb.isDestroyed()) {
+                bomb.act(); // Move the bomb
+
+                // Check collision with player
+                if (player.isVisible() && checkEnemyBombCollision(bomb, player)) {
+                    var ii = new ImageIcon(IMG_EXPLOSION);
+                    player.setImage(ii.getImage());
+                    player.setDying(true);
+                    bomb.setDestroyed(true);
+                    enemyBombsToRemove.add(bomb);
+                    inGame = false;
+                }
+
+                // Remove bomb if it goes off screen
+                if (bomb.getX() < -30 || bomb.getY() > BOARD_HEIGHT || bomb.getY() < -30) {
+                    bomb.setDestroyed(true);
+                    enemyBombsToRemove.add(bomb);
+                }
+            } else {
+                enemyBombsToRemove.add(bomb);
+            }
+        }
+        enemyBombs.removeAll(enemyBombsToRemove);
+
+        // Handle Alien2 bombs
+        List<Bomb2> enemyBombs2ToRemove = new ArrayList<>();
+        for (Bomb2 bomb2 : enemyBombs2) {
+            if (!bomb2.isDestroyed()) {
+                bomb2.act(); // Move the bomb
+
+                // Check collision with player
+                if (player.isVisible() && checkEnemyBomb2Collision(bomb2, player)) {
+                    var ii = new ImageIcon(IMG_EXPLOSION);
+                    player.setImage(ii.getImage());
+                    player.setDying(true);
+                    bomb2.setDestroyed(true);
+                    enemyBombs2ToRemove.add(bomb2);
+                    inGame = false;
+                }
+
+                // Remove bomb if it goes off screen
+                if (bomb2.getX() < -30 || bomb2.getY() > BOARD_HEIGHT || bomb2.getY() < -30) {
+                    bomb2.setDestroyed(true);
+                    enemyBombs2ToRemove.add(bomb2);
+                }
+            } else {
+                enemyBombs2ToRemove.add(bomb2);
+            }
+        }
+        enemyBombs2.removeAll(enemyBombs2ToRemove);
+    }
+
+    private boolean checkEnemyBombCollision(Alien1.Bomb bomb, HorizontalPlayer player) {
+        int bombX = bomb.getX();
+        int bombY = bomb.getY();
+        int bombWidth = bomb.getImage().getWidth(null);
+        int bombHeight = bomb.getImage().getHeight(null);
+
+        int playerX = player.getX();
+        int playerY = player.getY();
+        int playerWidth = player.getImage().getWidth(null);
+        int playerHeight = player.getImage().getHeight(null);
+
+        return bombX < playerX + playerWidth &&
+                bombX + bombWidth > playerX &&
+                bombY < playerY + playerHeight &&
+                bombY + bombHeight > playerY;
+    }
+
+    private boolean checkEnemyBomb2Collision(Bomb2 bomb2, HorizontalPlayer player) {
+        int bombX = bomb2.getX();
+        int bombY = bomb2.getY();
+        int bombWidth = bomb2.getImage().getWidth(null);
+        int bombHeight = bomb2.getImage().getHeight(null);
+
+        int playerX = player.getX();
+        int playerY = player.getY();
+        int playerWidth = player.getImage().getWidth(null);
+        int playerHeight = player.getImage().getHeight(null);
+
+        return bombX < playerX + playerWidth &&
+                bombX + bombWidth > playerX &&
+                bombY < playerY + playerHeight &&
+                bombY + bombHeight > playerY;
+    }
+
+    private void drawEnemyBombs(Graphics g) {
+        // Draw Alien1 bombs
+        for (Alien1.Bomb bomb : enemyBombs) {
+            if (!bomb.isDestroyed()) {
+                g.drawImage(bomb.getImage(), bomb.getX(), bomb.getY(), this);
+            }
+        }
+
+        // Draw Alien2 bombs
+        for (Bomb2 bomb2 : enemyBombs2) {
+            if (!bomb2.isDestroyed()) {
+                g.drawImage(bomb2.getImage(), bomb2.getX(), bomb2.getY(), this);
+            }
+        }
+    }
+} // This should be the final closing brace for the BossScene class
