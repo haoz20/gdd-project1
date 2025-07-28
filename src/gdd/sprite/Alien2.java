@@ -83,6 +83,7 @@ public class Alien2 extends Enemy {
     public class Bomb2 extends Sprite {
 
         private boolean destroyed;
+        private boolean horizontalMovement = false; // Add this line
         private int clipNo = 0;
         private int frameNo = 0;
         private final int frame = 5; // Frame rate for bomb animation
@@ -121,6 +122,10 @@ public class Alien2 extends Enemy {
             return destroyed;
         }
 
+        public void setHorizontalMovement(boolean horizontal) { // Add this method
+            this.horizontalMovement = horizontal;
+        }
+
         @Override
         public Image getImage() {
             Rectangle bound = clips[clipNo];
@@ -140,7 +145,11 @@ public class Alien2 extends Enemy {
 
         @Override
         public void act() {
-            this.y += 2;
+            if (horizontalMovement) {
+                this.x -= 4; // Move left for BossScene
+            } else {
+                this.y += 2; // Move down for Scene1
+            }
 
             frameNo++;
             if (frameNo >= frame) {

@@ -8,10 +8,11 @@ import java.util.Random;
 
 public class BossAlien extends Enemy {
 
-    private int health = 400; // Increased HP for longer boss fight
+    private int health = 300; // Increased HP for longer boss fight
     private int moveDirection = 1;
     private int moveDirectionY = 1;
     private int moveCounter = 0;
+    private int shootTimer = 0; // Add shooting timer
     private Random random = new Random();
 
     public BossAlien(int x, int y) {
@@ -23,15 +24,13 @@ public class BossAlien extends Enemy {
         this.x = x;
         this.y = y;
 
-
         // Use the dedicated boss sprite
         var ii = new ImageIcon(IMG_BOSS);
         setImage(ii.getImage());
     }
 
-
     public void act(int direction, int playerY) {
-        // Boss moves horizontally as before
+        // Boss moves horizontally within right half of screen
         if (moveCounter % 30 == 0) {
             moveDirection = random.nextInt(3) - 1; // -1, 0, or 1 (left, stay, right)
         }
@@ -39,18 +38,21 @@ public class BossAlien extends Enemy {
         x += moveDirection * 3; // Move horizontally
         y += moveDirectionY * 3; // Move vertically
 
-        // Keep boss within screen bounds horizontally
-        if (x < 0) {
-            x = 0;
-            moveDirection = 1;
-        } else if (x > BOARD_WIDTH - getImage().getWidth(null)) {
-            x = BOARD_WIDTH - getImage().getWidth(null);
-            moveDirection = -1;
+        // Keep boss within right half of screen horizontally
+        int minX = BOARD_WIDTH / 2; // Start from middle of screen
+        int maxX = BOARD_WIDTH - getImage().getWidth(null);
+
+        if (x < minX) {
+            x = minX;
+            moveDirection = 1; // Force rightward movement
+        } else if (x > maxX) {
+            x = maxX;
+            moveDirection = -1; // Force leftward movement
         }
 
-        // Keep boss within screen bounds vertically (limit to upper half of screen)
+        // Keep boss within screen bounds vertically (limit to upper 25% of screen)
         int minY = 0;
-        int maxY = BOARD_HEIGHT / 2 - getImage().getHeight(null);
+        int maxY = BOARD_HEIGHT / 4 - getImage().getHeight(null);
         if (y < minY) {
             y = minY;
         } else if (y > maxY) {
@@ -58,6 +60,38 @@ public class BossAlien extends Enemy {
         }
 
         moveCounter++;
+        shootTimer++; // Increment shoot timer
+    }
+
+    // Add shooting methods
+    public boolean shouldShoot() {
+        if (shootTimer >= 45) { // Shoot every 45 frames (0.75 seconds)
+            shootTimer = 0;
+            return true;
+        }
+        return false;
+    }
+
+    public Shot getShot(int playerX, int playerY) {
+        // Calculate direction toward player
+        int shotX = this.x;
+        int shotY = this.y + getImage().getHeight(null) / 2;
+
+        Shot shot = new Shot(shotX, shotY);
+
+        // Calculate velocity toward player
+        double deltaX = playerX - shotX;
+        double deltaY = playerY - shotY;
+        double distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+
+        if (distance > 0) {
+            double speed = 6.0; // Shot speed
+            int velocityX = (int) ((deltaX / distance) * speed);
+            int velocityY = (int) ((deltaY / distance) * speed);
+            shot.setSpreadVelocity(velocityX, velocityY);
+        }
+
+        return shot;
     }
 
     public Bomb getBomb() {
