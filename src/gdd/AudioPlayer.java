@@ -173,4 +173,49 @@ public class AudioPlayer {
         clip.loop(Clip.LOOP_CONTINUOUSLY);
     }
 
+
+    /**
+     * Play a sound effect once (static method for one-time sounds like shooting and explosions)
+     * @param soundFilePath the path to the sound file
+     */
+    public static void playSoundEffect(String soundFilePath) {
+        try {
+            // Create AudioInputStream from the sound file
+            File file = new File(soundFilePath);
+            AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(file.getAbsoluteFile());
+            
+            // Create clip for the sound effect
+            Clip clip = AudioSystem.getClip();
+            clip.open(audioInputStream);
+            
+            // Play the sound once (no looping)
+            clip.start();
+            
+            // Close the clip when finished to free resources
+            clip.addLineListener(event -> {
+                if (event.getType() == javax.sound.sampled.LineEvent.Type.STOP) {
+                    clip.close();
+                }
+            });
+            
+        } catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
+            System.err.println("Error playing sound effect: " + soundFilePath);
+            // Don't print stack trace to avoid cluttering console during gameplay
+        }
+    }
+
+    /**
+     * Play shoot sound effect
+     */
+    public static void playShootSound() {
+        playSoundEffect("src/audio/shoot.wav");
+    }
+    
+    /**
+     * Play explosion sound effect
+     */
+    public static void playExplosionSound() {
+        playSoundEffect("src/audio/explosion.wav");
+    }
+
 }
