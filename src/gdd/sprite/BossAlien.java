@@ -14,6 +14,9 @@ public class BossAlien extends Enemy {
     private int moveCounter = 0;
     private int shootTimer = 0; // Add shooting timer
     private Random random = new Random();
+    private Bomb bomb; // Boss-specific bomb
+
+    private Rectangle bossBounds = new Rectangle(4, 4, 120, 111); // Define bounds for boss movement
 
     public BossAlien(int x, int y) {
         super(x, y);
@@ -23,10 +26,28 @@ public class BossAlien extends Enemy {
     private void initBoss(int x, int y) {
         this.x = x;
         this.y = y;
+        bomb = new Bomb(x, y);
 
         // Use the dedicated boss sprite
         var ii = new ImageIcon(IMG_BOSS);
         setImage(ii.getImage());
+    }
+
+    @Override
+    public Image getImage() {
+        Rectangle bound = bossBounds;
+        BufferedImage bImage = toBufferedImage(image);
+
+        // Check if the bounds are within the image
+        int maxX = bound.x + bound.width;
+        int maxY = bound.y + bound.height;
+
+        if (maxX > bImage.getWidth() || maxY > bImage.getHeight()) {
+            // If bounds exceed image, return the full image or a safe portion
+            return bImage;
+        }
+
+        return bImage.getSubimage(bound.x, bound.y, bound.width, bound.height);
     }
 
     public void act(int direction, int playerY) {
@@ -95,7 +116,7 @@ public class BossAlien extends Enemy {
     }
 
     public Bomb getBomb() {
-        return new Bomb(this.x, this.y);
+        return bomb; // Return the boss-specific bomb
     }
 
     public int getHealth() {
@@ -115,12 +136,11 @@ public class BossAlien extends Enemy {
         private int frame = 5; // Adjust frame rate for bomb animation
 
         private int clipNo = 0;
-        private Rectangle[] clips = new Rectangle[] {
-                new Rectangle(346, 62, 4, 4),
-                new Rectangle(337, 60, 6, 8)
-        };
+        private Rectangle bossbomb = new Rectangle(30, 148, 20, 20);
 
         private boolean destroyed;
+        private int velocityX = 0;
+        private int velocityY = 0;
 
         public Bomb(int x, int y) {
             initBomb(x, y);
@@ -130,17 +150,17 @@ public class BossAlien extends Enemy {
             setDestroyed(false);
             // Use boss image width for centering
             int bossWidth = BossAlien.this.getImage().getWidth(null);
-            int bombWidth = clips[0].width;
+            int bombWidth = bossbomb.width;
             this.x = x + (bossWidth / 2) - (bombWidth / 2); // Adjust bomb position relative to boss
             this.y = y;
-            var bombImg = "src/images/sprites.png";
+            var bombImg = "src/images/finalBoss.png";
             var ii = new ImageIcon(bombImg);
             setImage(ii.getImage());
         }
 
         @Override
         public Image getImage() {
-            Rectangle bound = clips[clipNo];
+            Rectangle bound = bossbomb;
             BufferedImage bImage = toBufferedImage(image);
 
             // Check if the bounds are within the image
@@ -166,11 +186,13 @@ public class BossAlien extends Enemy {
         @Override
         public void act() {
             this.y += 3; // Boss bombs fall faster
-            frameNo++;
-            if (frameNo >= frame) {
-                frameNo = 0; // Reset the counter
-                clipNo = (clipNo == 0) ? 1 : 0; // Alternate between clip0 and clip1
-            }
+            // frameNo++;
+            // if (frameNo >= frame) {
+            // frameNo = 0; // Reset the counter
+            // clipNo = (clipNo == 0) ? 1 : 0; // Alternate between clip0 and clip1
+            // }
+            this.x += velocityX;
+            this.y += velocityY;
         }
     }
 }

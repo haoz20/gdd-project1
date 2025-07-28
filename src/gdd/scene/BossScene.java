@@ -37,7 +37,7 @@ public class BossScene extends JPanel {
     private BossAlien boss;
     private List<Explosion> explosions;
     private List<Shot> shots;
-    private List<Bomb> bombs = new ArrayList<>();
+    private List<BossAlien.Bomb> bombs = new ArrayList<>();
     private List<Alien1.Bomb> enemyBombs = new ArrayList<>();
     private List<Bomb2> enemyBombs2 = new ArrayList<>(); // Add this line
     private HorizontalPlayer player;
@@ -388,7 +388,7 @@ public class BossScene extends JPanel {
                         // Create multiple bombs for spread pattern
                         for (int i = -2; i <= 2; i++) {
                             // Use the boss's getBomb() method to get a new bomb instance
-                            Bomb bomb = boss.getBomb();
+                            BossAlien.Bomb bomb = boss.getBomb();
                             if (bomb.isDestroyed()) {
                                 bomb.setDestroyed(false);
                                 bomb.setX(centerX);
@@ -409,7 +409,7 @@ public class BossScene extends JPanel {
 
                 case 1: // Rapid Bomb Burst
                     if (attackTimer >= 30) { // Slower frequency for bombs
-                        Bomb rapidBomb = boss.getBomb();
+                        BossAlien.Bomb rapidBomb = boss.getBomb();
                         if (rapidBomb.isDestroyed()) {
                             rapidBomb.setDestroyed(false);
                             rapidBomb.setX(boss.getX() + boss.getImage().getWidth(null) / 2);
@@ -429,7 +429,7 @@ public class BossScene extends JPanel {
 
                 case 2: // Homing Bombs
                     if (attackTimer >= 60) {
-                        Bomb homingBomb = boss.getBomb();
+                        BossAlien.Bomb homingBomb = boss.getBomb();
                         if (homingBomb.isDestroyed()) {
                             homingBomb.setDestroyed(false);
                             int bossX = boss.getX() + boss.getImage().getWidth(null) / 2;
@@ -452,7 +452,7 @@ public class BossScene extends JPanel {
 
                 case 3: // Spiral Bomb Pattern
                     if (attackTimer >= 40) {
-                        Bomb spiralBomb = boss.getBomb();
+                        BossAlien.Bomb spiralBomb = boss.getBomb();
                         if (spiralBomb.isDestroyed()) {
                             spiralBomb.setDestroyed(false);
                             int centerX = boss.getX() + boss.getImage().getWidth(null) / 2;
@@ -482,9 +482,12 @@ public class BossScene extends JPanel {
 
             // Add boss shooting
             if (boss.shouldShoot()) {
-                Shot bossShot = boss.getShot(player.getX() + player.getImage().getWidth(null) / 2,
-                        player.getY() + player.getImage().getHeight(null) / 2);
-                enemyShots.add(bossShot);
+                // Shot bossShot = boss.getShot(player.getX() + player.getImage().getWidth(null)
+                // / 2,
+                // player.getY() + player.getImage().getHeight(null) / 2);
+                // enemyShots.add(bossShot);
+                BossAlien.Bomb bomb = boss.getBomb();
+                bombs.add(bomb);
             }
 
             // Check collision with player
